@@ -1,0 +1,14 @@
+{% extends "layout.jinja2" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+    <row>
+        <h3>{{ page_title }}</h3>
+    </row>
+    {{ client_new_form.render() }}
+{% endblock %}
+{% block footer %}
+{{ super() }}
+{% endblock %}

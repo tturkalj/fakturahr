@@ -1,0 +1,42 @@
+{% if not field.widget.hidden %}
+    <div
+    {% if field.error and field.widget.error_class %}
+      class="form-group row has-error"
+    {% else %}
+      class="form-group row"
+    {% endif %}
+    {% if field.description %}
+      title="{{_(field.description) }}"
+    {% endif %}
+
+    id="item-{{field.oid}}">
+{% endif %}
+<!-- mapping_item -->
+{% if not (field.widget.hidden or field.widget.category=='structural') %}
+  <label class="col-sm-3 control-label"
+
+    {% if field.description %}
+      title="{{_(field.description)}}"
+    {% endif %}
+    for="{{field.oid}}">
+    {{_(field.title)}}
+    {% if field.required %}
+        *
+    {% endif %}
+    </label>
+{% endif %}
+<div class="col-sm-9">
+  {{field.serialize(cstruct)}}
+    {% if field.error and not field.widget.hidden %}
+    {% for msg in field.error.messages() %}
+        {% set errstr = 'error-%s' % field.oid %}
+        {% set pid = (loop.index0==0 and errstr) or ('%s-%s' % (errstr, loop.index0)) %}
+        <span id="{{pid}}" class="help-block">{{_(msg)}}</span>
+    {% endfor %}
+  {% endif%}
+</div>
+
+  <!-- /mapping_item -->
+{% if not field.widget.hidden %}
+    </div>
+{% endif %}
