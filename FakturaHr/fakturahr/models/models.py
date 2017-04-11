@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from sqlalchemy import Column, DateTime, Integer, Boolean, MetaData, UnicodeText, Unicode, ForeignKey, Float
+from sqlalchemy import Column, DateTime, Integer, Boolean, MetaData, UnicodeText, Unicode, ForeignKey, Float, Numeric
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from colander import null
 from fakturahr.utility.helper import now
@@ -63,7 +63,7 @@ class Client(Base):
             'address': self.get_value_or_null(self.address),
             'city': self.get_value_or_null(self.city),
             'postal_code': self.get_value_or_null(self.postal_code),
-            'company_id': self.get_value_or_null(self.company_id),
+            'oib': self.get_value_or_null(self.oib),
         }
 
     def edit_appstruct(self, appstruct):
@@ -82,8 +82,6 @@ class Client(Base):
 
 
 
-
-
 class User(Base):
     firstname = Column(Unicode(1024), nullable=False)
     lastname = Column(Unicode(1024), nullable=False)
@@ -98,9 +96,49 @@ class Company(Base):
 
 
 class Item(Base):
-    name = Column(UnicodeText, nullable=False)
+    name = Column(Unicode(2048), nullable=False)
     ean = Column(Unicode(1024), nullable=True)
     measurement_unit = Column(Unicode(128), nullable=True)
     pack_size = Column(Integer, nullable=True)
     pallete_size = Column(Integer, nullable=True)
-    price = Column(Float, nullable=True)
+    price = Column(Numeric(7, 2), nullable=True)
+
+    def get_name(self):
+        if self.name:
+            return self.name
+        return u'Nema ime'
+
+    def get_ean(self):
+        if self.ean is not None:
+            return self.ean
+        return u'Nema EAN'
+
+    def get_measurement_unit(self):
+        if self.measurement_unit is not None:
+            return self.measurement_unit
+        return u'Nema mjernu jedinicu'
+
+    def get_pack_size(self):
+        if self.pack_size is not None:
+            return self.pack_size
+        return u'Nema broj u pakiranju'
+
+    def get_pallete_size(self):
+        if self.pallete_size is not None:
+            return self.pallete_size
+        return u'Nema broj na paleti'
+
+    def get_price(self):
+        if self.price is not None:
+            return u'{:0.2f}'.format(self.price)
+        else:
+            u'Nema cijenu'
+
+    def get_price_formatted(self):
+        if self.price is not None:
+            formatted = u'{:0,.2f}'.format(self.price)
+            formatted = formatted.replace(',', 'temp')
+            formatted = formatted.replace('.', ',')
+            formatted = formatted.replace('temp', '.')
+            return formatted
+

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import colander
 from flask import Blueprint, render_template, abort, request, redirect, url_for, flash
 from deform import Form, ValidationFailure
 
@@ -82,7 +83,17 @@ def client_edit(client_id):
             template_context = {'client_new_form': client_new_form}
             return render_template(CLIENT_NEW_TEMPLATE, **template_context)
 
-        edited = client.edit_appstruct(appstruct)
+        edited = False
+        for key in appstruct:
+            if hasattr(client, key):
+                if appstruct[key] != colander.null:
+                    if getattr(client, key) != appstruct[key]:
+                        setattr(client, key, appstruct[key])
+                        edited = True
+                else:
+                    if getattr(client, key) is not None:
+                        setattr(client, key, None)
+                        edited = True
 
         if edited:
             Session.flush()

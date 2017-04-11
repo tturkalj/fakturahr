@@ -4,19 +4,11 @@
 {{ super() }}
 {% endblock %}
 {% block content %}
-<div class="row">
-    <h1>{{ page_title }}</h1>
-</div>
-<div class="row">
     <p>
-        Broj klijenata: {{ client_count }}
+        <h3>{{ page_title }}</h3>
     </p>
-    <p>
-        Broj artikala: {{ item_count }}
-    </p>
-</div>
+    {{ item_new_form.render() }}
 {% endblock %}
 {% block footer %}
 {{ super() }}
-
 {% endblock %}
