@@ -61,9 +61,9 @@ class ItemNewValidator(Schema):
                        title=u'Cijena',
                        widget=TextInputWidget(),
                        missing=null,
-                       validator=Range(min=1,
-                                       max=9999,
-                                       min_err=MIN_NUMBER_RANGE_ERROR.format(1),
+                       validator=Range(min=0,
+                                       max=999999.99,
+                                       min_err=MIN_NUMBER_RANGE_ERROR.format(0),
                                        max_err=MAX_NUMBER_RANGE_ERROR.format(9999)
                                        )
                        )

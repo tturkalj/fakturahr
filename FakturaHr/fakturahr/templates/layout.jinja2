@@ -17,6 +17,8 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/jqc-1.12.4/dt-1.10.13/datatables.min.css"/>
 
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='deform_static/static/scripts/deform.js') }}"></script>
 
     <style>
     body {
@@ -46,15 +48,18 @@
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
-{#                    <li>#}
-{#                        <a href="{{ url_for('main_view.index') }}">Devices</a>#}
-{#                    </li>#}
-{#                    <li>#}
-{#                        <a href="{{ url_for('main_view.device_content') }}">Device content</a>#}
-{#                    </li>#}
-{#                    <li>#}
-{#                        <a href="{{ url_for('main_view.settings') }}">Settings</a>#}
-{#                    </li>#}
+                    <li>
+                        <a href="{{ url_for('index_view.index') }}">Početna</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('item_view.item_list') }}">Artikli</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('client_view.client_list') }}">Klijenti</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('receipt_view.receipt_list') }}">Računi</a>
+                    </li>
                 </ul>
             </div>
             <!-- /.navbar-collapse -->
@@ -107,11 +112,12 @@
 
 
 
-        <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
+
         <script type="text/javascript" src="https://cdn.datatables.net/v/bs/jqc-1.12.4/dt-1.10.13/datatables.min.js"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
 
         <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+
 
 
     {% endblock %}

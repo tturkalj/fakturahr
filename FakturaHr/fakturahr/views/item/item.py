@@ -14,15 +14,15 @@ ITEM_LIST_TEMPLATE = 'item/item_list.jinja2'
 
 
 def get_item_list():
-    item_list = Session.query(Item).filter(Item.deleted == False).all()
-    return item_list
+    items = Session.query(Item).filter(Item.deleted == False).all()
+    return items
 
 
 @item_view.route('/list', methods=['GET'])
-def item_list_view():
-    item_list = get_item_list()
+def item_list():
+    items = get_item_list()
     context = {
-        'item_list': item_list,
+        'item_list': items,
         'page_title': u'Lista artikala'
     }
     return render_template(ITEM_LIST_TEMPLATE, **context)
@@ -31,7 +31,7 @@ def item_list_view():
 @item_view.route('/new', methods=['GET', 'POST'])
 def item_new():
     if 'cancel' in request.form:
-        return redirect(url_for('.item_list_view'))
+        return redirect(url_for('.item_list'))
 
     item_new_schema = ItemNewValidator()
     item_new_form = Form(item_new_schema, action=url_for('.item_new'), buttons=('submit', 'cancel'))
@@ -55,7 +55,7 @@ def item_new():
         Session.flush()
 
         flash(u'Uspješno ste dodali novi artikl', 'success')
-        return redirect(url_for('.item_list_view'))
+        return redirect(url_for('.item_list'))
 
     template_context = {
         'page_title': u'Novi artikl',
@@ -67,12 +67,12 @@ def item_new():
 @item_view.route('/edit/<int:item_id>', methods=['GET', 'POST'])
 def item_edit(item_id):
     if 'cancel' in request.form:
-        return redirect(url_for('.item_list_view'))
+        return redirect(url_for('.item_list'))
 
     item = Session.query(Item).filter(Item.id == item_id, Item.deleted == False).first()
     if not item:
         flash(u'Artikl nije pronađen', 'error')
-        return redirect(url_for('.item_list_view'))
+        return redirect(url_for('.item_list'))
 
     item_new_schema = ItemNewValidator()
     item_new_form = Form(item_new_schema,
@@ -103,7 +103,7 @@ def item_edit(item_id):
         if edited:
             Session.flush()
             flash(u'Uspješno ste uredili artikl', 'success')
-        return redirect(url_for('.item_list_view'))
+        return redirect(url_for('.item_list'))
 
     template_context = {
         'page_title': u'Uredi artikl',
@@ -117,10 +117,10 @@ def item_delete(item_id):
     item = Session.query(Item).filter(Item.id == item_id, Item.deleted == False).first()
     if not item:
         flash(u'Artikl nije pronađen', 'error')
-        return redirect(url_for('.item_list_view'))
+        return redirect(url_for('.item_list'))
 
     item.deleted = True
     Session.flush()
 
     flash(u'Uspješno ste obrisali artikl', 'success')
-    return redirect(url_for('.item_list_view'))
+    return redirect(url_for('.item_list'))

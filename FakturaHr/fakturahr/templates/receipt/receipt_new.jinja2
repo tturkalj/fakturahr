@@ -1,0 +1,14 @@
+{% extends "layout.jinja2" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+    <p>
+        <h3>{{ page_title }}</h3>
+    </p>
+    {{ receipt_new_form.render() }}
+{% endblock %}
+{% block footer %}
+{{ super() }}
+{% endblock %}

@@ -9,6 +9,7 @@ from fakturahr.views.client.validators import ClientNewValidator
 
 index_view = Blueprint('index_view', __name__)
 
+
 @index_view.route('/')
 def index():
     client_count = Session.query(Client).filter(Client.deleted == False).count()

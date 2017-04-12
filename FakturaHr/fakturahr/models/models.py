@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from sqlalchemy import Column, DateTime, Integer, Boolean, MetaData, UnicodeText, Unicode, ForeignKey, Float, Numeric
-from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from sqlalchemy.orm import relationship
 from colander import null
 from fakturahr.utility.helper import now
 from fakturahr.models.database import Base
@@ -101,7 +101,7 @@ class Item(Base):
     measurement_unit = Column(Unicode(128), nullable=True)
     pack_size = Column(Integer, nullable=True)
     pallete_size = Column(Integer, nullable=True)
-    price = Column(Numeric(7, 2), nullable=True)
+    price = Column(Numeric(8, 2), nullable=True)
 
     def get_name(self):
         if self.name:
@@ -141,4 +141,46 @@ class Item(Base):
             formatted = formatted.replace('.', ',')
             formatted = formatted.replace('temp', '.')
             return formatted
+
+
+class Receipt(Base):
+    SLIP = 0
+    number = Column(Unicode(100), nullable=False)
+    issued_date = Column(DateTime, nullable=False)
+    currency_date = Column(DateTime, nullable=False)
+    issued_time = Column(Unicode(10), nullable=False)
+    issued_location = Column(Unicode(100), nullable=False)
+    payment_type = Column(Integer, nullable=False, default=SLIP)
+    tax_percent = Column(Integer, nullable=False)
+    base_amount = Column(Numeric(8, 2), nullable=False)
+    tax_amount = Column(Numeric(8, 2), nullable=False)
+    return_amount = Column(Numeric(8, 2), nullable=False)
+    total_amount = Column(Numeric(8, 2), nullable=False)
+    buyer_name = Column(Unicode(100), nullable=True)
+    user_id = Column(ForeignKey('user.id'), index=True)
+
+    user = relationship('User')
+
+
+class ReceiptItem(Base):
+    receipt_id = Column(ForeignKey('receipt.id'), index=True)
+
+    name = Column(Unicode(2048), nullable=False)
+    ean = Column(Unicode(1024), nullable=True)
+    measurement_unit = Column(Unicode(128), nullable=True)
+    pack_size = Column(Integer, nullable=True)
+    pallete_size = Column(Integer, nullable=True)
+    price = Column(Numeric(8, 2), nullable=True)
+
+    quantity = Column(Integer, nullable=False)
+    rebate_percent = Column(Integer, nullable=False, default=0)
+    item_price = Column(Numeric(8, 2), nullable=False)
+    item_price_sum = Column(Numeric(8, 2), nullable=False)
+
+
+
+
+
+
+
 

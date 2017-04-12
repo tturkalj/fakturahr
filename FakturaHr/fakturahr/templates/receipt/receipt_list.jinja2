@@ -1,0 +1,84 @@
+{% extends "layout.jinja2" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-lg-10"><h3>{{ page_title }}</h3></div>
+        <div class="col-lg-2">
+            <h3>
+                <a href="{{ url_for('.receipt_new') }}" class="btn btn-success">
+                    Dodaj račun
+                </a>
+            </h3>
+        </div>
+    </div>
+<div class="row">
+
+    <div class="col-lg-12">
+        <table id="dataTable" class="table row-border hover">
+            <thead>
+                <tr>
+                    <th>Ime</th>
+                    <th>EAN</th>
+                    <th>Mjerna jedinica</th>
+                    <th>Komada u pakiranju</th>
+                    <th>Komada na paleti</th>
+                    <th>Cijena VPC</th>
+                    <th>Akcije</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%- for item in item_list %}
+                    <tr data-object-id="{{item.id}}">
+                        <td data-th="Ime" style="overflow: hidden; text-overflow: ellipsis;">
+                            {{ item.get_name() }}
+                        </td>
+                        <td data-th="EAN" style="overflow: hidden; text-overflow: ellipsis;">
+                            {{ item.get_ean() }}
+                        </td>
+                        <td data-th="Mjerna jedinica" style="overflow: hidden; text-overflow: ellipsis;">
+                            {{ item.get_measurement_unit() }}
+                        </td>
+                        <td data-th="Komada u pakiranju" style="overflow: hidden; text-overflow: ellipsis;">
+                            {{ item.get_pack_size() }}
+                        </td>
+                        <td data-th="Komada na paleti" style="overflow: hidden; text-overflow: ellipsis;">
+                            {{ item.get_pallete_size() }}
+                        </td>
+                        <td data-th="Cijena VPC" style="overflow: hidden; text-overflow: ellipsis;">
+                            {{ item.get_price_formatted() }}
+                        </td>
+                        <td data-th="Akcije">
+                            <a href="{{ url_for('.item_edit', item_id=item.id) }}" class="btn btn-default" data-toggle="modal" title="{{ 'Uredi' }}">
+                                <span class="glyphicon glyphicon-edit"></span>
+                            </a>
+                            <button class="btn btn-default"
+                                    data-toggle="tooltip"
+                                    title="{{ 'Obriši' }}"
+                                    onclick="toggleModal(this);"
+                                    data-target="#confirm-action-modal"
+                                    data-url="{{ url_for('.item_delete', item_id=item.id) }}">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </button>
+                        </td>
+                    </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+{% block footer %}
+{{ super() }}
+
+<script type="text/javascript">
+$(document).ready(function(){
+    // datatable activation
+    $('#dataTable').DataTable();
+});
+
+
+</script>
+{% endblock %}

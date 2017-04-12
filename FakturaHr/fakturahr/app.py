@@ -6,6 +6,7 @@ from deform_jinja2 import jinja2_renderer_factory
 from fakturahr.views.client.client import client_view
 from fakturahr.views.index import index_view
 from fakturahr.views.item.item import item_view
+from fakturahr.views.receipt.receipt import receipt_view
 from fakturahr.models.database import init_db
 
 
@@ -29,6 +30,7 @@ if __name__ == '__main__':
     app.register_blueprint(index_view)
     app.register_blueprint(client_view)
     app.register_blueprint(item_view)
+    app.register_blueprint(receipt_view)
     app.run(host='localhost')
 
 
