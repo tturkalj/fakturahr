@@ -33,7 +33,8 @@ def receipt_new():
 
     item_list = get_item_list()
 
-    receipt_new_schema = ReceiptNewValidator().bind
+    item_id_name_list = [(item.id, item.name) for item in item_list]
+    receipt_new_schema = ReceiptNewValidator().bind(items=item_id_name_list)
     receipt_new_form = Form(receipt_new_schema, action=url_for('.receipt_new'), buttons=('submit', 'cancel'))
 
     if 'submit' in request.form:

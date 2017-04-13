@@ -1,1 +1,4 @@
-<p id="{{ field.oid }}">{{ cstruct }}</p>
+<p id="{{ field.oid }}"
+   class="form-control {% if field.error %}form-control-danger{% endif %}">
+    {{ cstruct }}
+</p>

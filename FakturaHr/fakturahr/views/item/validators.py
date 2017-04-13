@@ -38,7 +38,7 @@ class ItemNewValidator(Schema):
                                                    max_err=MAX_CHAR_LENGTH_ERROR.format(128)
                                                    )
                                   )
-    pack_size = SchemaNode(String(),
+    pack_size = SchemaNode(Integer(),
                            title=Item.PACK_SIZE,
                            widget=TextInputWidget(),
                            missing=null,
@@ -48,7 +48,7 @@ class ItemNewValidator(Schema):
                                            max_err=MAX_NUMBER_RANGE_ERROR.format(9999)
                                            )
                            )
-    pallete_size = SchemaNode(String(),
+    pallete_size = SchemaNode(Integer(),
                               title=Item.PALLETE_SIZE,
                               widget=TextInputWidget(),
                               missing=null,

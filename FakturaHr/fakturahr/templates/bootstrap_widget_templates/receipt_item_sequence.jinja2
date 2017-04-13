@@ -9,7 +9,31 @@
 <div class="deform-seq" id="{{ field.oid }}">
 <!-- sequence -->
 <input type="hidden" name="__start__" value="{{ field.name }}:sequence" class="deform-proto" prototype="{{ prototype }}" />
-<ul>
+
+<div class="row">
+    <div class="col-md-2">
+        {{ 'Naziv' }}
+    </div>
+    <div class="col-md-2">
+        {{ 'EAN' }}
+    </div>
+    <div class="col-md-1">
+        {{ 'M.J.' }}
+    </div>
+    <div class="col-md-1">
+        {{ 'Cijena' }}
+    </div>
+    <div class="col-md-1">
+        {{ 'Količina' }}
+    </div>
+    <div class="col-md-1">
+        {{ 'Rabat(%)' }}
+    </div>
+    <div class="col-md-1">
+        {{ 'Iznos' }}
+    </div>
+</div>
+
 {% for c, f in subfields %}
 {{ rndr(item_tmpl, field=f, cstruct=c, parent=field) }}
 {% endfor %}
@@ -25,10 +49,9 @@
  now_len="{{ now_len }}"
 {% endif %}
 ></span>
-</ul>
 
 <a href="#" class="deform-seq-sdd" id="{{ field.oid }}-seq-add" onclick="javascript: return deform.appendSequenceItem(this);">
-<small id="{{ field.oid }}-addtext">{{ _(add_subitem_text) }}</small>
+<small id="{{ field.oid }}-addtext">{{ 'Dodaj red' }}</small>
 </a>
 
 <script type="text/javascript">

@@ -137,50 +137,58 @@ class ReceiptNewValidator(colander.Schema):
     base_amount = colander.SchemaNode(
         colander.Decimal('0.01', ROUND_HALF_EVEN),
         title=u'Cijena',
-        widget=TextInputWidget(),
-        missing=colander.null,
-        validator=
-        colander.Range(min=0,
-              max=999999.99,
-              min_err=MIN_NUMBER_RANGE_ERROR.format(0),
-              max_err=MAX_NUMBER_RANGE_ERROR.format(999999.99)
-              )
+        widget=TextInputWidget(readonly=True),
+        validator=colander.Range(
+            min=0,
+            max=999999.99,
+            min_err=MIN_NUMBER_RANGE_ERROR.format(0),
+            max_err=MAX_NUMBER_RANGE_ERROR.format(999999.99)
+        )
     )
     tax_amount = colander.SchemaNode(
         colander.Decimal('0.01', ROUND_HALF_EVEN),
         title=u'PDV',
-        widget=TextInputWidget(),
-        missing=colander.null,
-        validator=
-        colander.Range(min=0,
-              max=999999.99,
-              min_err=MIN_NUMBER_RANGE_ERROR.format(0),
-              max_err=MAX_NUMBER_RANGE_ERROR.format(999999.99)
-              )
+        widget=TextInputWidget(readonly=True),
+        validator=colander.Range(
+            min=0,
+            max=999999.99,
+            min_err=MIN_NUMBER_RANGE_ERROR.format(0),
+            max_err=MAX_NUMBER_RANGE_ERROR.format(999999.99)
+        )
     )
     return_amount = colander.SchemaNode(
         colander.Decimal('0.01', ROUND_HALF_EVEN),
         title=u'Povratna naknada',
-        widget=TextInputWidget(),
-        missing=colander.null,
-        validator=
-        colander.Range(min=0,
-              max=999999.99,
-              min_err=MIN_NUMBER_RANGE_ERROR.format(0),
-              max_err=MAX_NUMBER_RANGE_ERROR.format(999999.99)
-              )
+        widget=TextInputWidget(readonly=True),
+        validator=colander.Range(
+            min=0,
+            max=999999.99,
+            min_err=MIN_NUMBER_RANGE_ERROR.format(0),
+            max_err=MAX_NUMBER_RANGE_ERROR.format(999999.99)
+        )
     )
     total_amount = colander.SchemaNode(
         colander.Decimal('0.01', ROUND_HALF_EVEN),
         title=u'UKUPNO',
-        widget=TextInputWidget(),
-        missing=colander.null,
-        validator=
-        colander.Range(min=0,
-              max=999999.99,
-              min_err=MIN_NUMBER_RANGE_ERROR.format(0),
-              max_err=MAX_NUMBER_RANGE_ERROR.format(999999.99)
-              )
+        widget=TextInputWidget(readonly=True),
+        validator=colander.Range(
+            min=0,
+            max=999999.99,
+            min_err=MIN_NUMBER_RANGE_ERROR.format(0),
+            max_err=MAX_NUMBER_RANGE_ERROR.format(999999.99)
+        )
+    )
+    payment_type = colander.SchemaNode(
+        colander.String(),
+        title=u'Način plaćanja',
+        widget=TextInputWidget(readonly=True),
+        default=u'Transakcijski račun (virman)'
+    )
+    operator = colander.SchemaNode(
+        colander.String(),
+        title=u'Operater',
+        widget=TextInputWidget(readonly=True),
+        default=u'Miroslav Šebrek'
     )
     receipt_items = ReceiptItemSequence(
         widget=SequenceWidget(

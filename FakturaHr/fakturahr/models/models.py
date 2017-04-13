@@ -149,6 +149,19 @@ class Item(Base):
             formatted = formatted.replace('temp', '.')
             return formatted
 
+    def get_value_or_null(self, value):
+        if value is not None:
+            return value
+        return null
+
+    def get_appstruct(self):
+        return {
+            'name': self.name,
+            'ean': self.get_value_or_null(self.ean),
+            'measurement_unit': self.get_value_or_null(self.measurement_unit),
+            'pallete_size': self.get_value_or_null(self.pallete_size),
+            'price': self.get_value_or_null(self.price),
+        }
 
 class Receipt(Base):
     SLIP = 0

@@ -4,10 +4,111 @@
 {{ super() }}
 {% endblock %}
 {% block content %}
-    <p>
-        <h3>{{ page_title }}</h3>
-    </p>
-    {{ receipt_new_form.render() }}
+    {% macro form_field(field, label_col, offset=0) %}
+        {% if not field.widget.hidden %}
+            <div
+            {% if field.error %}
+              class="has-error"
+            {% endif %}
+            id="item-{{field.oid}}">
+        {% endif %}
+            {% if not field.widget.hidden%}
+              <label class="col-md-{{ label_col }} col-md-offset-{{ offset }} control-label"
+
+                {% if field.description %}
+                  title="{{field.description}}"
+                {% endif %}
+                for="{{field.oid}}">
+                {{field.title}}
+                {% if field.required %}
+                    *
+                {% endif %}
+                </label>
+            {% endif %}
+            <div class="col-md-3">
+              {{field.serialize(cstruct)}}
+                {% if field.error and not field.widget.hidden %}
+                {% for msg in field.error.messages() %}
+                    {% set errstr = 'error-%s' % field.oid %}
+                    {% set pid = (loop.index0==0 and errstr) or ('%s-%s' % (errstr, loop.index0)) %}
+                    <span id="{{pid}}" class="help-block">{{msg}}</span>
+                {% endfor %}
+              {% endif%}
+            </div>
+        {% if not field.widget.hidden %}
+            </div>
+        {% endif %}
+    {% endmacro %}
+
+    <h3>{{ page_title }}</h3>
+
+    <form
+        id="{{receipt_new_form.formid}}-form"
+        action="{{receipt_new_form.action}}"
+        method="{{receipt_new_form.method}}"
+        enctype="multipart/form-data"
+        accept-charset="utf-8"
+        >
+            <div class="row">
+                {{ form_field(receipt_new_form['number'], 2) }}
+
+                {{ form_field(receipt_new_form['base_amount'], 1, 1) }}
+            </div>
+
+            <div class="row">
+                {{ form_field(receipt_new_form['issued_date'], 2) }}
+
+                {{ form_field(receipt_new_form['tax_amount'], 1, 1) }}
+            </div>
+
+            <div class="row">
+                {{ form_field(receipt_new_form['currency_date'], 2) }}
+
+                {{ form_field(receipt_new_form['return_amount'], 1, 1) }}
+            </div>
+
+            <div class="row">
+                {{ form_field(receipt_new_form['issued_time'], 2) }}
+
+                {{ form_field(receipt_new_form['total_amount'], 1, 1) }}
+            </div>
+
+            <div class="row">
+                {{ form_field(receipt_new_form['issued_location'], 2) }}
+            </div>
+            <div class="row">
+                {{ form_field(receipt_new_form['payment_type'], 2) }}
+            </div>
+
+            <div class="row">
+                {{ form_field(receipt_new_form['operator'], 2) }}
+            </div>
+
+            <div class="row">
+            {{ receipt_new_form['receipt_items'].serialize() | safe }}
+            </div>
+
+            <div class="actions" style="margin-top: 20px">
+            {% for button in receipt_new_form.buttons %}
+                <button
+                    id="{{receipt_new_form.formid+button.name}}"
+                    name="{{button.name}}"
+                    type="{{button.type}}"
+                    class="btn btnText submit primaryAction"
+                    value="{{ button.value }}"
+                    {% if button.disabled %}
+                    disabled="disabled"
+                    {% endif %}
+                    >
+                <span>{{ button.title }}</span>
+                </button>
+            {% endfor %}
+            </div>
+
+
+        </form>
+
+
 {% endblock %}
 {% block footer %}
 {{ super() }}
