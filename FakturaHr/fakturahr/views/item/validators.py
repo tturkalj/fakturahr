@@ -4,11 +4,12 @@ from colander import Schema, SchemaNode, String, null, Length, Integer, Range, F
 from deform.widget import TextInputWidget
 from fakturahr.string_constants import REQUIRED_FIELD, MAX_CHAR_LENGTH_ERROR, MIN_CHAR_LENGTH_ERROR, \
     MIN_NUMBER_RANGE_ERROR, MAX_NUMBER_RANGE_ERROR
+from fakturahr.models.models import Item
 
 
 class ItemNewValidator(Schema):
     name = SchemaNode(String(),
-                      title=u'Ime artikla',
+                      title=Item.NAME,
                       widget=TextInputWidget(),
                       validator=Length(min=1,
                                        max=2048,
@@ -18,7 +19,7 @@ class ItemNewValidator(Schema):
                       missing_msg=REQUIRED_FIELD
                       )
     ean = SchemaNode(String(),
-                     title=u'EAN',
+                     title=Item.EAN,
                      widget=TextInputWidget(),
                      missing=null,
                      validator=Length(min=1,
@@ -28,7 +29,7 @@ class ItemNewValidator(Schema):
                                       )
                      )
     measurement_unit = SchemaNode(String(),
-                                  title=u'Mjerna jedinica',
+                                  title=Item.MEASUREMENT_UNIT,
                                   widget=TextInputWidget(),
                                   missing=null,
                                   validator=Length(min=1,
@@ -38,7 +39,7 @@ class ItemNewValidator(Schema):
                                                    )
                                   )
     pack_size = SchemaNode(String(),
-                           title=u'Pakiranje u kartonu',
+                           title=Item.PACK_SIZE,
                            widget=TextInputWidget(),
                            missing=null,
                            validator=Range(min=1,
@@ -48,7 +49,7 @@ class ItemNewValidator(Schema):
                                            )
                            )
     pallete_size = SchemaNode(String(),
-                              title=u'Komada na paleti',
+                              title=Item.PALLETE_SIZE,
                               widget=TextInputWidget(),
                               missing=null,
                               validator=Range(min=1,
@@ -58,7 +59,7 @@ class ItemNewValidator(Schema):
                                               )
                               )
     price = SchemaNode(Decimal('0.01', decimal.ROUND_HALF_EVEN),
-                       title=u'Cijena',
+                       title=Item.PRICE,
                        widget=TextInputWidget(),
                        missing=null,
                        validator=Range(min=0,

@@ -103,6 +103,13 @@ class Item(Base):
     pallete_size = Column(Integer, nullable=True)
     price = Column(Numeric(8, 2), nullable=True)
 
+    NAME = u'Naziv'
+    EAN = u'EAN'
+    MEASUREMENT_UNIT = u'Mjerna jedinica'
+    PACK_SIZE = u'Pakiranje u kartonu'
+    PALLETE_SIZE = u'Komada na paleti'
+    PRICE = u'Cijena'
+
     def get_name(self):
         if self.name:
             return self.name
@@ -171,12 +178,13 @@ class ReceiptItem(Base):
     pack_size = Column(Integer, nullable=True)
     pallete_size = Column(Integer, nullable=True)
     price = Column(Numeric(8, 2), nullable=True)
-
     quantity = Column(Integer, nullable=False)
-    rebate_percent = Column(Integer, nullable=False, default=0)
+    rebate_percent = Column(Float, nullable=False, default=0.0)
     item_price = Column(Numeric(8, 2), nullable=False)
     item_price_sum = Column(Numeric(8, 2), nullable=False)
 
+    QUANTITY = u'Količina'
+    REBATE_PERCENT = u'Rabat'
 
 
 

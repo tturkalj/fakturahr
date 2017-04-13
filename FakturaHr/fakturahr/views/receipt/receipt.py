@@ -6,6 +6,7 @@ from deform import Form, ValidationFailure
 from fakturahr.models.database import Session
 from fakturahr.models.models import Receipt, ReceiptItem
 from fakturahr.views.receipt.validators import ReceiptNewValidator
+from fakturahr.views.item.item import get_item_list
 
 receipt_view = Blueprint('receipt_view', __name__, url_prefix='/receipt')
 
@@ -30,7 +31,9 @@ def receipt_new():
     if 'cancel' in request.form:
         return redirect(url_for('.receipt_list'))
 
-    receipt_new_schema = ReceiptNewValidator()
+    item_list = get_item_list()
+
+    receipt_new_schema = ReceiptNewValidator().bind
     receipt_new_form = Form(receipt_new_schema, action=url_for('.receipt_new'), buttons=('submit', 'cancel'))
 
     if 'submit' in request.form:

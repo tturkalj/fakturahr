@@ -4,7 +4,7 @@ import colander
 from deform.widget import TextInputWidget, SelectWidget, MappingWidget, SequenceWidget
 from fakturahr.string_constants import REQUIRED_FIELD, MAX_CHAR_LENGTH_ERROR, MIN_CHAR_LENGTH_ERROR, \
     MIN_NUMBER_RANGE_ERROR, MAX_NUMBER_RANGE_ERROR
-
+from fakturahr.models.models import Item, ReceiptItem
 
 @colander.deferred
 def item_id_widget(node, kw):
@@ -17,53 +17,67 @@ def item_id_validator(node, kw):
     return colander.OneOf([item[0] for item in items])
 
 
-class ReceiptItem(colander.Schema):
-    # item_id = colander.SchemaNode(
-    #     colander.Integer(),
-    #     widget=item_id_widget,
-    #     validator=item_id_validator,
-    #     missing_msg=REQUIRED_FIELD
-    # )
-    issued_location = colander.SchemaNode(
+class ReceiptItemSchema(colander.Schema):
+    item_id = colander.SchemaNode(
+        colander.Integer(),
+        title=Item.NAME,
+        widget=item_id_widget,
+        validator=item_id_validator,
+        missing_msg=REQUIRED_FIELD
+    )
+
+    ean = colander.SchemaNode(
         colander.String(),
-        title=u'Mjesto izdavanja',
+        title=Item.EAN,
+        widget=TextInputWidget(readonly=True),
+        missing_msg=REQUIRED_FIELD
+    )
+    measurement_unit = colander.SchemaNode(
+        colander.String(),
+        title=Item.MEASUREMENT_UNIT,
+        widget=TextInputWidget(readonly=True),
+        missing_msg=REQUIRED_FIELD
+    )
+    item_price = colander.SchemaNode(
+        colander.String(),
+        title=Item.PRICE,
+        widget=TextInputWidget(readonly=True),
+        missing_msg=REQUIRED_FIELD
+    )
+    quantity = colander.SchemaNode(
+        colander.Integer(),
+        title=ReceiptItem.QUANTITY,
         widget=TextInputWidget(),
         missing_msg=REQUIRED_FIELD,
-        validator=colander.Length(
+        validator=colander.Range(
             min=1,
+            max=9999,
+            min_err=MIN_CHAR_LENGTH_ERROR.format(1),
+            max_err=MAX_CHAR_LENGTH_ERROR.format(9999)
+        )
+    )
+    rebate_percent = colander.SchemaNode(
+        colander.Float(),
+        title=ReceiptItem.REBATE_PERCENT,
+        widget=TextInputWidget(),
+        missing_msg=REQUIRED_FIELD,
+        validator=colander.Range(
+            min=0,
             max=100,
             min_err=MIN_CHAR_LENGTH_ERROR.format(1),
             max_err=MAX_CHAR_LENGTH_ERROR.format(100)
         )
     )
-    test = colander.SchemaNode(
+    item_price_sum = colander.SchemaNode(
         colander.String(),
-        title=u'Mjesto izdavanja',
-        widget=TextInputWidget(),
-        missing_msg=REQUIRED_FIELD,
-        validator=colander.Length(
-            min=1,
-            max=100,
-            min_err=MIN_CHAR_LENGTH_ERROR.format(1),
-            max_err=MAX_CHAR_LENGTH_ERROR.format(100)
-        )
-    )
-    test2 = colander.SchemaNode(
-        colander.String(),
-        title=u'Mjesto izdavanja',
-        widget=TextInputWidget(),
-        missing_msg=REQUIRED_FIELD,
-        validator=colander.Length(
-            min=1,
-            max=100,
-            min_err=MIN_CHAR_LENGTH_ERROR.format(1),
-            max_err=MAX_CHAR_LENGTH_ERROR.format(100)
-        )
+        title=Item.PRICE,
+        widget=TextInputWidget(readonly=True),
+        missing_msg=REQUIRED_FIELD
     )
 
 
 class ReceiptItemSequence(colander.SequenceSchema):
-    receipt_item = ReceiptItem(
+    receipt_item = ReceiptItemSchema(
         widget=MappingWidget(
             template='receipt_item_mapping.jinja2',
             item_template='receipt_item_mapping_item.jinja2'
