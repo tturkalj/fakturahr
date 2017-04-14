@@ -31,7 +31,7 @@ if __name__ == '__main__':
     app.register_blueprint(client_view)
     app.register_blueprint(item_view)
     app.register_blueprint(receipt_view)
-    app.run(host='localhost')
+    app.run(host='localhost', debug=True)
 
 
 

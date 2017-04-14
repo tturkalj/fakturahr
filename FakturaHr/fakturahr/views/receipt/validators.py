@@ -9,7 +9,7 @@ from fakturahr.models.models import Item, ReceiptItem
 @colander.deferred
 def item_id_widget(node, kw):
     items = kw.get('items')
-    return SelectWidget(values=items)
+    return SelectWidget(values=items, css_class='input-medium')
 
 @colander.deferred
 def item_id_validator(node, kw):
@@ -29,19 +29,28 @@ class ReceiptItemSchema(colander.Schema):
     ean = colander.SchemaNode(
         colander.String(),
         title=Item.EAN,
-        widget=TextInputWidget(readonly=True),
+        widget=TextInputWidget(
+            readonly=True,
+            readonly_template=u'readonly/textinput_readonly'
+        ),
         missing_msg=REQUIRED_FIELD
     )
     measurement_unit = colander.SchemaNode(
         colander.String(),
         title=Item.MEASUREMENT_UNIT,
-        widget=TextInputWidget(readonly=True),
+        widget=TextInputWidget(
+            readonly=True,
+            readonly_template=u'readonly/textinput_readonly'
+        ),
         missing_msg=REQUIRED_FIELD
     )
     item_price = colander.SchemaNode(
         colander.String(),
         title=Item.PRICE,
-        widget=TextInputWidget(readonly=True),
+        widget=TextInputWidget(
+            readonly=True,
+            readonly_template=u'readonly/textinput_readonly'
+        ),
         missing_msg=REQUIRED_FIELD
     )
     quantity = colander.SchemaNode(
@@ -71,7 +80,10 @@ class ReceiptItemSchema(colander.Schema):
     item_price_sum = colander.SchemaNode(
         colander.String(),
         title=Item.PRICE,
-        widget=TextInputWidget(readonly=True),
+        widget=TextInputWidget(
+            readonly=True,
+            readonly_template=u'readonly/textinput_readonly'
+        ),
         missing_msg=REQUIRED_FIELD
     )
 
@@ -137,7 +149,10 @@ class ReceiptNewValidator(colander.Schema):
     base_amount = colander.SchemaNode(
         colander.Decimal('0.01', ROUND_HALF_EVEN),
         title=u'Cijena',
-        widget=TextInputWidget(readonly=True),
+        widget=TextInputWidget(
+            readonly=True,
+            readonly_template=u'readonly/textinput_readonly'
+        ),
         validator=colander.Range(
             min=0,
             max=999999.99,
@@ -148,7 +163,10 @@ class ReceiptNewValidator(colander.Schema):
     tax_amount = colander.SchemaNode(
         colander.Decimal('0.01', ROUND_HALF_EVEN),
         title=u'PDV',
-        widget=TextInputWidget(readonly=True),
+        widget=TextInputWidget(
+            readonly=True,
+            readonly_template=u'readonly/textinput_readonly'
+        ),
         validator=colander.Range(
             min=0,
             max=999999.99,
@@ -159,7 +177,10 @@ class ReceiptNewValidator(colander.Schema):
     return_amount = colander.SchemaNode(
         colander.Decimal('0.01', ROUND_HALF_EVEN),
         title=u'Povratna naknada',
-        widget=TextInputWidget(readonly=True),
+        widget=TextInputWidget(
+            readonly=True,
+            readonly_template=u'readonly/textinput_readonly'
+        ),
         validator=colander.Range(
             min=0,
             max=999999.99,
@@ -170,7 +191,10 @@ class ReceiptNewValidator(colander.Schema):
     total_amount = colander.SchemaNode(
         colander.Decimal('0.01', ROUND_HALF_EVEN),
         title=u'UKUPNO',
-        widget=TextInputWidget(readonly=True),
+        widget=TextInputWidget(
+            readonly=True,
+            readonly_template=u'readonly/textinput_readonly'
+        ),
         validator=colander.Range(
             min=0,
             max=999999.99,
@@ -181,14 +205,19 @@ class ReceiptNewValidator(colander.Schema):
     payment_type = colander.SchemaNode(
         colander.String(),
         title=u'Način plaćanja',
-        widget=TextInputWidget(readonly=True),
+        widget=TextInputWidget(
+            readonly=True,
+            readonly_template=u'readonly/textinput_readonly'
+        ),
         default=u'Transakcijski račun (virman)'
     )
     operator = colander.SchemaNode(
         colander.String(),
         title=u'Operater',
-        widget=TextInputWidget(readonly=True),
-        default=u'Miroslav Šebrek'
+        widget=TextInputWidget(
+            readonly=True,
+            readonly_template=u'readonly/textinput_readonly'
+        )
     )
     receipt_items = ReceiptItemSequence(
         widget=SequenceWidget(

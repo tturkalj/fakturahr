@@ -26,7 +26,7 @@
                 </label>
             {% endif %}
             <div class="col-md-3">
-              {{field.serialize(cstruct)}}
+              {{field.serialize() | safe}}
                 {% if field.error and not field.widget.hidden %}
                 {% for msg in field.error.messages() %}
                     {% set errstr = 'error-%s' % field.oid %}
@@ -84,7 +84,7 @@
                 {{ form_field(receipt_new_form['operator'], 2) }}
             </div>
 
-            <div class="row">
+            <div class="row" style="margin-top: 10px;">
             {{ receipt_new_form['receipt_items'].serialize() | safe }}
             </div>
 
@@ -112,4 +112,11 @@
 {% endblock %}
 {% block footer %}
 {{ super() }}
+<script>
+    var itemDataList = {{ item_data_list }};
+    $('#receipt-new-form').find('select[name="item_id"]').on('change', function (e) {
+
+    })
+</script>
+
 {% endblock %}

@@ -1,8 +1,6 @@
 <select name="{{ field.name }}"
         id="{{ field.oid }}"
-        {% if field.widget.css_class %}
-          class="{{ field.widget.css_class }}"
-        {% endif %}
+        class="form-control {% if field.error %}form-control-danger{% endif %}"
         {% if field.widget.multiple %}
           multiple
         {% endif %}

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import colander
+import json
 from flask import Blueprint, render_template, abort, request, redirect, url_for, flash
 from deform import Form, ValidationFailure
 
@@ -32,17 +33,38 @@ def receipt_new():
         return redirect(url_for('.receipt_list'))
 
     item_list = get_item_list()
+    item_data_list = [
+        {
+            'id': item.id,
+            'name': item.get_name(),
+            'ean': item.get_ean(),
+            'measurement_unit': item.get_measurement_unit(),
+            'price': item.get_price(),
+            'price_formatted': item.get_price_formatted()
+        } for item in item_list
+    ]
 
     item_id_name_list = [(item.id, item.name) for item in item_list]
+    item_id_name_list.insert(0, ('', '-Odaberi artikl-'))
     receipt_new_schema = ReceiptNewValidator().bind(items=item_id_name_list)
-    receipt_new_form = Form(receipt_new_schema, action=url_for('.receipt_new'), buttons=('submit', 'cancel'))
+    receipt_new_form = Form(
+        receipt_new_schema,
+        action=url_for('.receipt_new'),
+        buttons=('submit', 'cancel'),
+        formid='receipt-new-form'
+    )
+
+    template_context = {
+        'page_title': u'Novi račun',
+        'receipt_new_form': receipt_new_form,
+        'item_data_list': json.dumps(item_data_list)
+    }
 
     if 'submit' in request.form:
         print request.form
         try:
             appstruct = receipt_new_form.validate(request.form.items())
         except ValidationFailure as e:
-            template_context = {'receipt_new_form': receipt_new_form}
             return render_template(RECEIPT_NEW_TEMPLATE, **template_context)
 
         new_receipt = Receipt()
@@ -52,10 +74,6 @@ def receipt_new():
         flash(u'Uspješno ste dodali novi račun', 'success')
         return redirect(url_for('.receipt_list'))
 
-    template_context = {
-        'page_title': u'Novi račun',
-        'receipt_new_form': receipt_new_form
-    }
     return render_template(RECEIPT_NEW_TEMPLATE, **template_context)
 
 
