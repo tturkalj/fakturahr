@@ -19,6 +19,7 @@
                   title="{{field.description}}"
                 {% endif %}
                 for="{{field.oid}}">
+
                 {{field.title}}
                 {% if field.required %}
                     *
@@ -26,7 +27,7 @@
                 </label>
             {% endif %}
             <div class="col-md-3">
-              {{field.serialize() | safe}}
+              {{ field.serialize() | safe }}
                 {% if field.error and not field.widget.hidden %}
                 {% for msg in field.error.messages() %}
                     {% set errstr = 'error-%s' % field.oid %}
@@ -43,7 +44,7 @@
     <h3>{{ page_title }}</h3>
 
     <form
-        id="{{receipt_new_form.formid}}-form"
+        id="{{receipt_new_form.formid}}"
         action="{{receipt_new_form.action}}"
         method="{{receipt_new_form.method}}"
         enctype="multipart/form-data"
@@ -76,6 +77,7 @@
             <div class="row">
                 {{ form_field(receipt_new_form['issued_location'], 2) }}
             </div>
+
             <div class="row">
                 {{ form_field(receipt_new_form['payment_type'], 2) }}
             </div>
@@ -89,20 +91,30 @@
             </div>
 
             <div class="actions" style="margin-top: 20px">
-            {% for button in receipt_new_form.buttons %}
-                <button
-                    id="{{receipt_new_form.formid+button.name}}"
-                    name="{{button.name}}"
-                    type="{{button.type}}"
+            <button
+                    name="submit"
+                    type="submit"
                     class="btn btnText submit primaryAction"
-                    value="{{ button.value }}"
-                    {% if button.disabled %}
-                    disabled="disabled"
-                    {% endif %}
+                    value="submit"
                     >
-                <span>{{ button.title }}</span>
-                </button>
-            {% endfor %}
+                <span>Submit</span>
+            </button>
+
+
+{#            {% for button in receipt_new_form.buttons %}#}
+{#                <button#}
+{#                    id="{{receipt_new_form.formid+button.name}}"#}
+{#                    name="{{button.name}}"#}
+{#                    type="{{button.type}}"#}
+{#                    class="btn btnText submit primaryAction"#}
+{#                    value="{{ button.value }}"#}
+{#                    {% if button.disabled %}#}
+{#                    disabled="disabled"#}
+{#                    {% endif %}#}
+{#                    >#}
+{#                <span>{{ button.title }}</span>#}
+{#                </button>#}
+{#            {% endfor %}#}
             </div>
 
 
@@ -113,10 +125,74 @@
 {% block footer %}
 {{ super() }}
 <script>
-    var itemDataList = {{ item_data_list }};
-    $('#receipt-new-form').find('select[name="item_id"]').on('change', function (e) {
+$(document).ready(function(){
+    Decimal.set({ precision: 5, rounding: Decimal.ROUND_HALF_EVEN });
 
-    })
+    function getSelectedItemData(selectedValue) {
+        var itemDataList = {{ receipt_new_form.schema.bindings['item_data_list'] }};
+        var itemData = null;
+        $.each(itemDataList, function (index, listObject) {
+            if (listObject['id'] == selectedValue) {
+                itemData = listObject
+            }
+        });
+        return itemData;
+    }
+
+    function initReceiptItemsSelect(){
+        var receiptForm = $('#receipt-new-form');
+        $(receiptForm).find('select[name="item_id"]').on('change', function (e) {
+            var parentRow = $(this).closest('.row');
+            var selectedValue = $(this).val();
+            var itemData = getSelectedItemData(selectedValue);
+            if (itemData){
+                $(parentRow).find('[name="ean"]').val(itemData['ean']);
+                $(parentRow).find('[name="measurement_unit"]').val(itemData['measurement_unit']);
+                $(parentRow).find('[name="item_price"]').val(itemData['price']);
+            }
+        });
+    }
+    
+    function calculateItemPriceSum(itemRow) {
+        var quantity = parseInt($(itemRow).find('input[name="quantity"]').val());
+        var rebatePercent = parseFloat($(itemRow).find('input[name="rebate_percent"]').val());
+
+        if (!$.isNumeric(quantity) || quantity < 0 || quantity > 9999) {
+            return false
+        }
+        if (!$.isNumeric(rebatePercent) || rebatePercent < 0 || rebatePercent > 100) {
+            return false
+        }
+        var selectedValue = $(itemRow).find('select[name="item_id"]').val();
+        var itemData = getSelectedItemData(selectedValue);
+        if (itemData) {
+            var selectedItemPrice = new Decimal(itemData['price']);
+            var itemPriceSum = selectedItemPrice.times(quantity);
+            itemPriceSum = itemPriceSum.minus(itemPriceSum.times(rebatePercent/100));
+            $(itemRow).find('input[name="item_price_sum"]').val(itemPriceSum.toString());
+        }
+    }
+    function initReceiptCalculator(){
+        var receiptForm = $('#receipt-new-form');
+        $(receiptForm).find('input[name="quantity"]').on('keyup', function (e) {
+           calculateItemPriceSum($(this).closest('.row'));
+        });
+        $(receiptForm).find('input[name="rebate_percent"]').on('keyup', function (e) {
+            calculateItemPriceSum($(this).closest('.row'));
+        });
+    }
+
+    initReceiptItemsSelect();
+
+    initReceiptCalculator();
+
+    $('#receipt-new-form').find('.deform-seq-add').off('click').on('click', function (e) {
+        deform.appendSequenceItem($(this));
+        initReceiptItemsSelect();
+        initReceiptCalculator();
+    });
+});
+
+
 </script>
-
 {% endblock %}

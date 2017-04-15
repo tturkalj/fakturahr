@@ -70,6 +70,7 @@ class ReceiptItemSchema(colander.Schema):
         title=ReceiptItem.REBATE_PERCENT,
         widget=TextInputWidget(),
         missing_msg=REQUIRED_FIELD,
+        default=0.0,
         validator=colander.Range(
             min=0,
             max=100,
@@ -205,15 +206,16 @@ class ReceiptNewValidator(colander.Schema):
     payment_type = colander.SchemaNode(
         colander.String(),
         title=u'Način plaćanja',
+        default=u'Transakcijski račun (virman)',
         widget=TextInputWidget(
             readonly=True,
             readonly_template=u'readonly/textinput_readonly'
-        ),
-        default=u'Transakcijski račun (virman)'
+        )
     )
     operator = colander.SchemaNode(
         colander.String(),
         title=u'Operater',
+        default=u'Miroslav Šebrek',
         widget=TextInputWidget(
             readonly=True,
             readonly_template=u'readonly/textinput_readonly'

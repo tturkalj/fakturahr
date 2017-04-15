@@ -7,8 +7,8 @@
 >
  {% for value, description in field.widget.values %}
  <option
-        {% if value == cstruct %}
-        selected="selected"
+        {% if value|string == cstruct %}
+            selected="selected"
         {% endif %}
         value="{{ value }}">{{ description }}</option>
 {% endfor %}

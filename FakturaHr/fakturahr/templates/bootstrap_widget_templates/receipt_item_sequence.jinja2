@@ -50,11 +50,34 @@
 {% endif %}
 ></span>
 
-<a href="#" class="deform-seq-sdd" id="{{ field.oid }}-seq-add" onclick="javascript: return deform.appendSequenceItem(this);">
+<a href="#" class="deform-seq-add" id="{{ field.oid }}-seq-add">
 <small id="{{ field.oid }}-addtext">{{ 'Dodaj red' }}</small>
 </a>
 
 <script type="text/javascript">
+{#    function initReceiptItemsSelect(){#}
+{#        var receiptForm = $('#receipt-new-form');#}
+{#        var itemDataList = {{ field.schema.bindings['item_data_list'] }};#}
+{#        $(receiptForm).find('select[name="item_id"]').on('change', function (e) {#}
+{#            var parentRow = $(this).closest('.row');#}
+{#            var selectedValue = $(this).val();#}
+{#            $.each(itemDataList, function (index, item) {#}
+{#                if (item['id'] == selectedValue) {#}
+{#                    $(parentRow).find('[name="ean"]').val(item['ean']);#}
+{#                    $(parentRow).find('[name="measurement_unit"]').val(item['measurement_unit']);#}
+{#                    $(parentRow).find('[name="item_price"]').val(item['price_formatted']);#}
+{#                }#}
+{#            })#}
+{##}
+{##}
+{#        });#}
+{#    }#}
+
+{#    initReceiptItemsSelect();#}
+
+
+
+
    deform.addCallback(
      '{{ field.oid }}',
      function(oid) {

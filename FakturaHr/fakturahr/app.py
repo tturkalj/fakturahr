@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
-from flask import Flask
+from flask import Flask, Request
+from werkzeug.datastructures import OrderedMultiDict
 from deform import Form
 from deform_jinja2 import jinja2_renderer_factory
 from fakturahr.views.client.client import client_view
@@ -10,12 +11,17 @@ from fakturahr.views.receipt.receipt import receipt_view
 from fakturahr.models.database import init_db
 
 
+class AppRequest(Request):
+    parameter_storage_class = OrderedMultiDict
+
+
 def get_root_path():
     return os.path.dirname(os.path.abspath(__file__))
 
 
 def create_app(config=None):
     flask_app = Flask(__name__, template_folder='templates', static_url_path='/static')
+    flask_app.request_class = AppRequest
     return flask_app
 
 
@@ -31,7 +37,7 @@ if __name__ == '__main__':
     app.register_blueprint(client_view)
     app.register_blueprint(item_view)
     app.register_blueprint(receipt_view)
-    app.run(host='localhost', debug=True)
+    app.run(host='localhost')
 
 
 

@@ -137,9 +137,9 @@ class Item(Base):
 
     def get_price(self):
         if self.price is not None:
-            return u'{:0.2f}'.format(self.price)
+            return float(self.price)
         else:
-            u'Nema cijenu'
+            return None
 
     def get_price_formatted(self):
         if self.price is not None:
@@ -148,6 +148,8 @@ class Item(Base):
             formatted = formatted.replace('.', ',')
             formatted = formatted.replace('temp', '.')
             return formatted
+        else:
+            u'Nema cijenu'
 
     def get_value_or_null(self, value):
         if value is not None:

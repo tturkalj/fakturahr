@@ -46,7 +46,10 @@ def receipt_new():
 
     item_id_name_list = [(item.id, item.name) for item in item_list]
     item_id_name_list.insert(0, ('', '-Odaberi artikl-'))
-    receipt_new_schema = ReceiptNewValidator().bind(items=item_id_name_list)
+    receipt_new_schema = ReceiptNewValidator().bind(
+        items=item_id_name_list,
+        item_data_list=json.dumps(item_data_list)
+    )
     receipt_new_form = Form(
         receipt_new_schema,
         action=url_for('.receipt_new'),
@@ -61,9 +64,10 @@ def receipt_new():
     }
 
     if 'submit' in request.form:
-        print request.form
         try:
-            appstruct = receipt_new_form.validate(request.form.items())
+            controls = request.form.items(multi=True)
+            print controls
+            appstruct = receipt_new_form.validate(controls)
         except ValidationFailure as e:
             return render_template(RECEIPT_NEW_TEMPLATE, **template_context)
 
