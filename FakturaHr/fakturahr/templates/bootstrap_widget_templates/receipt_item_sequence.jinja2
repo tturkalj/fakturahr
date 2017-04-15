@@ -35,7 +35,7 @@
 </div>
 
 {% for c, f in subfields %}
-{{ rndr(item_tmpl, field=f, cstruct=c, parent=field) }}
+{{ rndr(item_tmpl, field=f, cstruct=c, parent=field, min_len=min_len, loop_index=loop.index) }}
 {% endfor %}
 
 <span class="deform-insert-before"
