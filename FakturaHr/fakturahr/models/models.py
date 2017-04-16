@@ -258,7 +258,7 @@ class Receipt(Base):
 
     def get_base_amount_formatted(self):
         if self.base_amount is not None:
-            return get_number_formatted(str(self.base_amount))
+            return get_number_formatted(self.base_amount)
         else:
             u'Nema osnovicu'
 
@@ -270,7 +270,7 @@ class Receipt(Base):
 
     def get_tax_amount_formatted(self):
         if self.tax_amount is not None:
-            return get_number_formatted(str(self.tax_amount))
+            return get_number_formatted(self.tax_amount)
         else:
             u'Nema iznos poreza'
 
@@ -282,7 +282,7 @@ class Receipt(Base):
 
     def get_return_amount_formatted(self):
         if self.return_amount is not None:
-            return get_number_formatted(str(self.return_amount))
+            return get_number_formatted(self.return_amount)
         else:
             u'Nema povratnu naknadu'
 
@@ -294,7 +294,7 @@ class Receipt(Base):
 
     def get_total_amount_formatted(self):
         if self.total_amount is not None:
-            return get_number_formatted(str(self.total_amount))
+            return get_number_formatted(self.total_amount)
         else:
             return u'Nema ukupan iznos'
 
@@ -349,3 +349,39 @@ class ReceiptItem(Base):
 
     QUANTITY = u'Količina'
     REBATE_PERCENT = u'Rabat'
+
+    def get_name(self):
+        if self.name is not None:
+            return self.name
+        return u'Nema naziv'
+
+    def get_ean(self):
+        if self.ean is not None:
+            return self.ean
+        return u'Nema EAN'
+
+    def get_measurement_unit(self):
+        if self.measurement_unit is not None:
+            return self.measurement_unit
+        return u'Nema mjernu jedinicu'
+
+    def get_quantity(self):
+        if self.quantity is not None:
+            return self.quantity
+        return u'Nema količinu'
+
+    def get_rebate_percent(self):
+        if self.rebate_percent is not None:
+            return get_number_formatted(self.rebate_percent)
+        return u'Nema rabat'
+
+    def get_item_price(self):
+        if self.item_price is not None:
+            return get_number_formatted(self.item_price)
+        return u'Nema cijenu'
+
+    def get_item_price_sum(self):
+        if self.item_price_sum is not None:
+            return get_number_formatted(self.item_price_sum)
+        return u'Nema iznos'
+

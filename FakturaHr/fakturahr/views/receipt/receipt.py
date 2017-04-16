@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 import colander
 import json
+from io import BytesIO
 from deform import Form, ValidationFailure
 from datetime import datetime
-from flask import Blueprint, render_template, abort, request, redirect, url_for, flash, g
+from tempfile import NamedTemporaryFile
+from flask import Blueprint, render_template, abort, request, redirect, url_for, flash, send_file
 from fakturahr.models.database import Session
 from fakturahr.models.models import Receipt, ReceiptItem, Item, User
 from fakturahr.views.receipt.validators import ReceiptNewValidator
 from fakturahr.views.item.item import get_item_list, get_item
 from fakturahr.views.client.client import get_client_list
 from fakturahr.utility.helper import get_value_or_colander_null
+from fakturahr.utility.receipt_export import get_receipt_document
 
 receipt_view = Blueprint('receipt_view', __name__, url_prefix='/receipt')
 
@@ -262,9 +265,9 @@ def receipt_edit(receipt_id):
                 new_receipt_item = ReceiptItem()
                 new_receipt_item.receipt_id = receipt.id
                 new_receipt_item.name = item_object.name
-                for key in item:
+                for key in appstruct_receipt_item:
                     if hasattr(new_receipt_item, key):
-                        setattr(new_receipt_item, key, item[key])
+                        setattr(new_receipt_item, key, appstruct_receipt_item[key])
                 edited = True
                 Session.add(new_receipt_item)
                 Session.flush()
@@ -292,3 +295,29 @@ def receipt_delete(receipt_id):
 
     flash(u'Uspješno ste obrisali račun', 'success')
     return redirect(url_for('.receipt_list'))
+
+
+@receipt_view.route('/export/<int:receipt_id>', methods=['GET'])
+def receipt_export(receipt_id):
+    receipt = Session.query(Receipt).filter(Receipt.id == receipt_id, Receipt.deleted == False).first()
+    if not receipt:
+        flash(u'Račun nije pronađen', 'danger')
+        return redirect(url_for('.receipt_list'))
+
+    receipt_document = get_receipt_document(receipt)
+
+    with NamedTemporaryFile(suffix=u'.docx', delete=True) as temp_file:
+        try:
+            receipt_document.save(temp_file)
+        except Exception as e:
+            flash(u'Greška kod generiranja računa', 'danger')
+            return redirect(url_for('.receipt_list'))
+
+        temp_file.seek(0)
+        byteio = BytesIO()
+        byteio.write(temp_file.read())
+        byteio.seek(0)
+
+    attachment_name = u'Račun-{0}.docx'.format(receipt.get_number()).encode(u'utf-8')
+
+    return send_file(byteio, as_attachment=True, attachment_filename=attachment_name)

@@ -16,10 +16,6 @@ class AppRequest(Request):
     parameter_storage_class = OrderedMultiDict
 
 
-def get_root_path():
-    return os.path.dirname(os.path.abspath(__file__))
-
-
 def create_app(config=None):
     flask_app = Flask(__name__, template_folder='templates', static_url_path='/static')
     flask_app.request_class = AppRequest
