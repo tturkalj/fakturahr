@@ -1,5 +1,7 @@
 from setuptools import setup, find_packages
-from FakturaHr import __version__
+
+
+__version__ = 0.1
 
 setup(name='FakturaHr',
       version=__version__,
