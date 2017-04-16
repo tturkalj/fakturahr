@@ -47,7 +47,7 @@
                             {{ client.get_oib() }}
                         </td>
                         <td data-th="Akcije">
-                            <a href="{{ url_for('.client_edit', client_id=client.id) }}" class="btn btn-default" data-toggle="modal" title="{{ 'Uredi' }}">
+                            <a href="{{ url_for('.client_edit', client_id=client.id) }}" class="btn btn-default" data-toggle="tooltip" title="{{ 'Uredi' }}">
                                 <span class="glyphicon glyphicon-edit"></span>
                             </a>
                             <button class="btn btn-default"

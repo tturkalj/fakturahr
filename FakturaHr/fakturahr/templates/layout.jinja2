@@ -11,15 +11,18 @@
 
     <title>FiskalHR {% block title %}{% endblock %}</title>
 
-    <!-- Bootstrap Core CSS -->
+
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='libs/jquery-ui-1.12.1/jquery-ui.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='libs/jquery-ui-1.12.1/jquery-ui.structure.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='libs/jquery-ui-1.12.1/jquery-ui.theme.min.css') }}">
 
-    <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/jqc-1.12.4/dt-1.10.13/datatables.min.css"/>
 
     <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='deform_static/static/scripts/deform.js') }}"></script>
+
 
     <style>
     body {
@@ -74,7 +77,7 @@
           {% if messages %}
               {% for category, message in messages %}
                   <div class="row">
-                      <div class="col-lg-offset-2 alert alert-{{ category }} alert-dismissable fade in" style="position: fixed">
+                      <div class="col-lg-offset-2 alert alert-{{ category }} alert-dismissable fade in alert-floating">
                           <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
                           {{ message }}
                       </div>
@@ -113,9 +116,9 @@
 
         <script type="text/javascript" src="https://cdn.datatables.net/v/bs/jqc-1.12.4/dt-1.10.13/datatables.min.js"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
-
-        <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/decimal.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='libs/jquery-ui-1.12.1/jquery-ui.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
 
     {% endblock %}
 </body>

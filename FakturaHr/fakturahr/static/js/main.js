@@ -18,6 +18,22 @@ $(document).ready(function(){
 });
 
 function toggleModal(button){
-    $('#confirm-action-modal').modal('toggle');
+    var url =  $(button).data('url');
     $('#confirm-action-modal').find('.btn-primary').attr('href', $(button).data('url'));
+    $('#confirm-action-modal').modal('toggle');
 }
+
+function initDatepicker(date_field){
+    date_field.datepicker({
+        dateFormat: 'dd.mm.yy.',
+        changeMonth: true,
+        changeYear: true,
+        showOtherMonths: true,
+        weekStart: 1,
+        firstDay: 1,
+        autoclose: true,
+        constrainInput: true,
+        monthNamesShort: [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+        dayNamesMin: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+    });
+};

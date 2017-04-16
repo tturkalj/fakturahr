@@ -20,38 +20,46 @@
         <table id="dataTable" class="table row-border hover">
             <thead>
                 <tr>
-                    <th>Ime</th>
-                    <th>EAN</th>
-                    <th>Mjerna jedinica</th>
-                    <th>Komada u pakiranju</th>
-                    <th>Komada na paleti</th>
-                    <th>Cijena VPC</th>
+                    <th>Broj</th>
+                    <th>Klijent</th>
+                    <th>Datum izdavanja</th>
+                    <th>Datum valute plaćanja</th>
+                    <th>Broj artikala</th>
+                    <th>Osnovica</th>
+                    <th>PDV</th>
+                    <th>Ukupno</th>
                     <th>Akcije</th>
                 </tr>
             </thead>
             <tbody>
-                {%- for item in item_list %}
-                    <tr data-object-id="{{item.id}}">
-                        <td data-th="Ime" style="overflow: hidden; text-overflow: ellipsis;">
-                            {{ item.get_name() }}
+                {%- for receipt in receipt_list %}
+                    <tr data-object-id="{{receipt.id}}">
+                        <td data-th="Broj" style="overflow: hidden; text-overflow: ellipsis;">
+                            {{ receipt.get_number() }}
                         </td>
-                        <td data-th="EAN" style="overflow: hidden; text-overflow: ellipsis;">
-                            {{ item.get_ean() }}
+                        <td data-th="Klijent" style="overflow: hidden; text-overflow: ellipsis;">
+                            {{ receipt.get_client() }}
                         </td>
-                        <td data-th="Mjerna jedinica" style="overflow: hidden; text-overflow: ellipsis;">
-                            {{ item.get_measurement_unit() }}
+                        <td data-th="Datum izdavanja" style="overflow: hidden; text-overflow: ellipsis;">
+                            {{ receipt.get_issued_date() }}
                         </td>
-                        <td data-th="Komada u pakiranju" style="overflow: hidden; text-overflow: ellipsis;">
-                            {{ item.get_pack_size() }}
+                        <td data-th="Datum valute plaćanja" style="overflow: hidden; text-overflow: ellipsis;">
+                            {{ receipt.get_currency_date() }}
                         </td>
-                        <td data-th="Komada na paleti" style="overflow: hidden; text-overflow: ellipsis;">
-                            {{ item.get_pallete_size() }}
+                        <td data-th="Broj artikala" style="overflow: hidden; text-overflow: ellipsis;">
+                            {{ receipt.get_receipt_item_quantity_total() }}
                         </td>
-                        <td data-th="Cijena VPC" style="overflow: hidden; text-overflow: ellipsis;">
-                            {{ item.get_price_formatted() }}
+                        <td data-th="Osnovica" style="overflow: hidden; text-overflow: ellipsis;">
+                            {{ receipt.get_base_amount() }}
+                        </td>
+                        <td data-th="PDV" style="overflow: hidden; text-overflow: ellipsis;">
+                            {{ receipt.get_tax_amount() }}
+                        </td>
+                        <td data-th="Ukupno" style="overflow: hidden; text-overflow: ellipsis;">
+                            {{ receipt.get_total_amount() }}
                         </td>
                         <td data-th="Akcije">
-                            <a href="{{ url_for('.item_edit', item_id=item.id) }}" class="btn btn-default" data-toggle="modal" title="{{ 'Uredi' }}">
+                            <a href="{{ url_for('.receipt_edit', receipt_id=receipt.id) }}" class="btn btn-default" data-toggle="modal" title="{{ 'Uredi' }}">
                                 <span class="glyphicon glyphicon-edit"></span>
                             </a>
                             <button class="btn btn-default"
@@ -59,7 +67,7 @@
                                     title="{{ 'Obriši' }}"
                                     onclick="toggleModal(this);"
                                     data-target="#confirm-action-modal"
-                                    data-url="{{ url_for('.item_delete', item_id=item.id) }}">
+                                    data-url="{{ url_for('.receipt_delete', receipt_id=receipt.id) }}">
                                 <span class="glyphicon glyphicon-remove"></span>
                             </button>
                         </td>

@@ -7,7 +7,7 @@ from fakturahr.string_constants import REQUIRED_FIELD, MAX_CHAR_LENGTH_ERROR, MI
 from fakturahr.models.models import Item
 
 
-class ItemNewValidator(Schema):
+class ItemNewSchema(Schema):
     name = SchemaNode(String(),
                       title=Item.NAME,
                       widget=TextInputWidget(),
@@ -65,6 +65,6 @@ class ItemNewValidator(Schema):
                        validator=Range(min=0,
                                        max=999999.99,
                                        min_err=MIN_NUMBER_RANGE_ERROR.format(0),
-                                       max_err=MAX_NUMBER_RANGE_ERROR.format(9999)
+                                       max_err=MAX_NUMBER_RANGE_ERROR.format(999999.99)
                                        )
                        )

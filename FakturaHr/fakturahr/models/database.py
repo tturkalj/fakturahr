@@ -27,9 +27,10 @@ Base.metadata = MetaData(naming_convention=naming_convention)
 Base.query = Session.query_property()
 
 
-def init_db():
+def init_models():
     # import all modules here that might define models so that
     # they will be registered properly on the metadata.  Otherwise
     # you will have to import them first before calling init_db()
     from fakturahr.models import models
     Base.metadata.create_all(bind=engine, checkfirst=True)
+

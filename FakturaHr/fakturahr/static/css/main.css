@@ -10,3 +10,9 @@
 .mb-2 {
     margin-bottom: 20px;
 }
+.alert-floating {
+    position: absolute;
+    top: 10%;
+    left: 40%;
+    z-index: 5000;
+}

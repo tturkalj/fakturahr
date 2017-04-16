@@ -7,16 +7,14 @@
 
 {% if loop_index is defined %}
     {% if not field.widget.hidden and loop_index > min_len %}
-        <button class="btn btn-default btn-xs">
-            <span class="deform-close-button glyphicon glyphicon-remove" id="{{ field.oid }}-close" title="Remove"
-                  onclick="javascript:deform.removeSequenceItem(this);"></span>
+        <button class="btn btn-default btn-xs deform-close-button" type="button">
+            <span class="glyphicon glyphicon-remove" id="{{ field.oid }}-close" title="Remove"></span>
         </button>
     {% endif %}
 {% else %}
     {% if not field.widget.hidden %}
-        <button class="btn btn-default btn-xs">
-            <span class="deform-close-button glyphicon glyphicon-remove" id="{{ field.oid }}-close" title="Remove"
-                  onclick="javascript:deform.removeSequenceItem(this);"></span>
+        <button class="btn btn-default btn-xs deform-close-button" type="button">
+            <span class="glyphicon glyphicon-remove" id="{{ field.oid }}-close" title="Remove"></span>
         </button>
     {% endif %}
 {% endif %}

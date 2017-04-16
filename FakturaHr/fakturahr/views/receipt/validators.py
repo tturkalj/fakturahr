@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-from decimal import ROUND_HALF_EVEN
 import colander
+from decimal import ROUND_HALF_EVEN
+from datetime import datetime
 from deform.widget import TextInputWidget, SelectWidget, MappingWidget, SequenceWidget
 from fakturahr.string_constants import REQUIRED_FIELD, MAX_CHAR_LENGTH_ERROR, MIN_CHAR_LENGTH_ERROR, \
     MIN_NUMBER_RANGE_ERROR, MAX_NUMBER_RANGE_ERROR
-from fakturahr.models.models import Item, ReceiptItem
+from fakturahr.models.models import Item, ReceiptItem, Receipt
 
 @colander.deferred
 def item_id_widget(node, kw):
@@ -15,6 +16,24 @@ def item_id_widget(node, kw):
 def item_id_validator(node, kw):
     items = kw.get('items')
     return colander.OneOf([item[0] for item in items])
+
+
+@colander.deferred
+def client_id_widget(node, kw):
+    clients = kw.get('clients')
+    return SelectWidget(values=clients, css_class='input-medium')
+
+@colander.deferred
+def client_id_validator(node, kw):
+    clients = kw.get('clients')
+    return colander.OneOf([client[0] for client in clients])
+
+
+def validate_date(node, value):
+    try:
+        parsed_date = datetime.strptime(value, Receipt.date_format)
+    except:
+        raise colander.Invalid(node, u'Pogrešan format datuma!')
 
 
 class ReceiptItemSchema(colander.Schema):
@@ -45,13 +64,19 @@ class ReceiptItemSchema(colander.Schema):
         missing_msg=REQUIRED_FIELD
     )
     item_price = colander.SchemaNode(
-        colander.String(),
+        colander.Decimal('0.01', ROUND_HALF_EVEN),
         title=Item.PRICE,
+        missing_msg=REQUIRED_FIELD,
         widget=TextInputWidget(
             readonly=True,
             readonly_template=u'readonly/textinput_readonly'
         ),
-        missing_msg=REQUIRED_FIELD
+        validator=colander.Range(
+            min=0,
+            max=999999.99,
+            min_err=MIN_NUMBER_RANGE_ERROR.format(0),
+            max_err=MAX_NUMBER_RANGE_ERROR.format(999999.99)
+        )
     )
     quantity = colander.SchemaNode(
         colander.Integer(),
@@ -78,14 +103,21 @@ class ReceiptItemSchema(colander.Schema):
             max_err=MAX_CHAR_LENGTH_ERROR.format(100)
         )
     )
+
     item_price_sum = colander.SchemaNode(
-        colander.String(),
-        title=Item.PRICE,
+        colander.Decimal('0.01', ROUND_HALF_EVEN),
+        title=Item.PRICE_SUM,
+        missing_msg=REQUIRED_FIELD,
         widget=TextInputWidget(
             readonly=True,
             readonly_template=u'readonly/textinput_readonly'
         ),
-        missing_msg=REQUIRED_FIELD
+        validator=colander.Range(
+            min=0,
+            max=999999.99,
+            min_err=MIN_NUMBER_RANGE_ERROR.format(0),
+            max_err=MAX_NUMBER_RANGE_ERROR.format(999999.99)
+        )
     )
 
 
@@ -99,6 +131,13 @@ class ReceiptItemSequence(colander.SequenceSchema):
 
 
 class ReceiptNewValidator(colander.Schema):
+    client_id = colander.SchemaNode(
+        colander.Integer(),
+        title=Receipt.CLIENT,
+        widget=client_id_widget,
+        validator=client_id_validator,
+        missing_msg=REQUIRED_FIELD
+    )
     number = colander.SchemaNode(
         colander.String(),
         title=u'Broj računa',
@@ -112,16 +151,18 @@ class ReceiptNewValidator(colander.Schema):
         )
     )
     issued_date = colander.SchemaNode(
-        colander.DateTime(),
+        colander.String(),
         title=u'Datum izdavanja',
         widget=TextInputWidget(),
-        missing_msg=REQUIRED_FIELD
+        missing_msg=REQUIRED_FIELD,
+        validator=validate_date
     )
     currency_date = colander.SchemaNode(
         colander.String(),
         title=u'Datum valute plaćanja',
         widget=TextInputWidget(),
-        missing_msg=REQUIRED_FIELD
+        missing_msg=REQUIRED_FIELD,
+        validator=validate_date
     )
     issued_time = colander.SchemaNode(
         colander.String(),
@@ -149,7 +190,8 @@ class ReceiptNewValidator(colander.Schema):
     )
     base_amount = colander.SchemaNode(
         colander.Decimal('0.01', ROUND_HALF_EVEN),
-        title=u'Cijena',
+        title=u'Osnovica za {0}%'.format(Receipt.TAX_PERCENT),
+        missing_msg=REQUIRED_FIELD,
         widget=TextInputWidget(
             readonly=True,
             readonly_template=u'readonly/textinput_readonly'
@@ -163,7 +205,8 @@ class ReceiptNewValidator(colander.Schema):
     )
     tax_amount = colander.SchemaNode(
         colander.Decimal('0.01', ROUND_HALF_EVEN),
-        title=u'PDV',
+        title=u'PDV {0}%'.format(Receipt.TAX_PERCENT),
+        missing_msg=REQUIRED_FIELD,
         widget=TextInputWidget(
             readonly=True,
             readonly_template=u'readonly/textinput_readonly'
@@ -182,6 +225,7 @@ class ReceiptNewValidator(colander.Schema):
             readonly=True,
             readonly_template=u'readonly/textinput_readonly'
         ),
+        missing_msg=REQUIRED_FIELD,
         validator=colander.Range(
             min=0,
             max=999999.99,
@@ -192,6 +236,7 @@ class ReceiptNewValidator(colander.Schema):
     total_amount = colander.SchemaNode(
         colander.Decimal('0.01', ROUND_HALF_EVEN),
         title=u'UKUPNO',
+        missing_msg=REQUIRED_FIELD,
         widget=TextInputWidget(
             readonly=True,
             readonly_template=u'readonly/textinput_readonly'
@@ -207,6 +252,7 @@ class ReceiptNewValidator(colander.Schema):
         colander.String(),
         title=u'Način plaćanja',
         default=u'Transakcijski račun (virman)',
+        missing_msg=REQUIRED_FIELD,
         widget=TextInputWidget(
             readonly=True,
             readonly_template=u'readonly/textinput_readonly'
@@ -216,9 +262,22 @@ class ReceiptNewValidator(colander.Schema):
         colander.String(),
         title=u'Operater',
         default=u'Miroslav Šebrek',
+        missing_msg=REQUIRED_FIELD,
         widget=TextInputWidget(
             readonly=True,
             readonly_template=u'readonly/textinput_readonly'
+        )
+    )
+    buyer_name = colander.SchemaNode(
+        colander.String(),
+        title=u'Robu preuzeo',
+        widget=TextInputWidget(),
+        missing_msg=REQUIRED_FIELD,
+        validator=colander.Length(
+            min=1,
+            max=100,
+            min_err=MIN_CHAR_LENGTH_ERROR.format(1),
+            max_err=MAX_CHAR_LENGTH_ERROR.format(100)
         )
     )
     receipt_items = ReceiptItemSequence(

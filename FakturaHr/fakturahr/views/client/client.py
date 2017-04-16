@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, abort, request, redirect, url_for,
 from deform import Form, ValidationFailure
 
 from fakturahr.models.database import Session
-from fakturahr.models.models import Client, Company
+from fakturahr.models.models import Client
 from fakturahr.views.client.validators import ClientNewValidator
 
 client_view = Blueprint('client_view', __name__, url_prefix='/client')
@@ -23,8 +23,8 @@ def get_client_list():
 
 @client_view.route(CLIENT_LIST_ROUTE)
 def client_list():
-    client_list = get_client_list()
-    context = {'client_list': client_list}
+    clients = get_client_list()
+    context = {'client_list': clients}
     return render_template(CLIENT_LIST_TEMPLATE, **context)
 
 
@@ -65,7 +65,7 @@ def client_edit(client_id):
 
     client = Session.query(Client).filter(Client.id == client_id, Client.deleted == False).first()
     if not client:
-        flash(u'Klijent nije pronađen', 'error')
+        flash(u'Klijent nije pronađen', 'danger')
         return redirect(url_for('.client_list'))
 
     client_new_schema = ClientNewValidator()
@@ -112,7 +112,7 @@ def client_delete(client_id):
 
     client = Session.query(Client).filter(Client.id == client_id, Client.deleted == False).first()
     if not client:
-        flash(u'Klijent nije pronađen', 'error')
+        flash(u'Klijent nije pronađen', 'danger')
         return redirect(url_for('.client_list'))
 
     client.deleted = True

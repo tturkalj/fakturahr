@@ -51,27 +51,30 @@
         accept-charset="utf-8"
         >
             <div class="row .mb-1">
-                {{ form_field(receipt_new_form['number'], 2) }}
+                {{ form_field(receipt_new_form['client_id'], 2) }}
 
                 {{ form_field(receipt_new_form['base_amount'], 1, 1) }}
             </div>
-
             <div class="row .mb-1">
-                {{ form_field(receipt_new_form['issued_date'], 2) }}
+                {{ form_field(receipt_new_form['number'], 2) }}
 
                 {{ form_field(receipt_new_form['tax_amount'], 1, 1) }}
             </div>
 
             <div class="row .mb-1">
-                {{ form_field(receipt_new_form['currency_date'], 2) }}
+                {{ form_field(receipt_new_form['issued_date'], 2) }}
 
                 {{ form_field(receipt_new_form['return_amount'], 1, 1) }}
             </div>
 
             <div class="row .mb-1">
-                {{ form_field(receipt_new_form['issued_time'], 2) }}
+                {{ form_field(receipt_new_form['currency_date'], 2) }}
 
                 {{ form_field(receipt_new_form['total_amount'], 1, 1) }}
+            </div>
+
+            <div class="row .mb-1">
+                {{ form_field(receipt_new_form['issued_time'], 2) }}
             </div>
 
             <div class="row .mb-1">
@@ -85,36 +88,30 @@
             <div class="row .mb-1">
                 {{ form_field(receipt_new_form['operator'], 2) }}
             </div>
+            <div class="row .mb-1">
+                {{ form_field(receipt_new_form['buyer_name'], 2) }}
+            </div>
 
             <div class="row .mb-1" style="margin-top: 10px;">
             {{ receipt_new_form['receipt_items'].serialize() | safe }}
             </div>
 
             <div class="actions" style="margin-top: 20px">
-            <button
-                    name="submit"
-                    type="submit"
+
+            {% for button in receipt_new_form.buttons %}
+                <button
+                    id="{{receipt_new_form.formid+button.name}}"
+                    name="{{button.name}}"
+                    type="{{button.type}}"
                     class="btn btnText submit primaryAction"
-                    value="submit"
+                    value="{{ button.value }}"
+                    {% if button.disabled %}
+                    disabled="disabled"
+                    {% endif %}
                     >
-                <span>Submit</span>
-            </button>
-
-
-{#            {% for button in receipt_new_form.buttons %}#}
-{#                <button#}
-{#                    id="{{receipt_new_form.formid+button.name}}"#}
-{#                    name="{{button.name}}"#}
-{#                    type="{{button.type}}"#}
-{#                    class="btn btnText submit primaryAction"#}
-{#                    value="{{ button.value }}"#}
-{#                    {% if button.disabled %}#}
-{#                    disabled="disabled"#}
-{#                    {% endif %}#}
-{#                    >#}
-{#                <span>{{ button.title }}</span>#}
-{#                </button>#}
-{#            {% endfor %}#}
+                <span>{{ button.title }}</span>
+                </button>
+            {% endfor %}
             </div>
 
 
@@ -126,7 +123,8 @@
 {{ super() }}
 <script>
 $(document).ready(function(){
-    Decimal.set({ precision: 5, rounding: Decimal.ROUND_HALF_EVEN });
+    Decimal.set({ precision: 8, rounding: Decimal.ROUND_HALF_EVEN });
+
 
     function getSelectedItemData(selectedValue) {
         var itemDataList = {{ receipt_new_form.schema.bindings['item_data_list'] }};
@@ -140,19 +138,48 @@ $(document).ready(function(){
     }
 
     function initReceiptItemsSelect(){
-        var receiptForm = $('#receipt-new-form');
-        $(receiptForm).find('select[name="item_id"]').on('change', function (e) {
-            var parentRow = $(this).closest('.row');
+        var receiptNewForm = $('#receipt-new-form');
+        $(receiptNewForm).find('select[name="item_id"]').on('change', function (e) {
+            var parentRow = $(this).closest('.deform-seq-item');
             var selectedValue = $(this).val();
             var itemData = getSelectedItemData(selectedValue);
             if (itemData){
                 $(parentRow).find('[name="ean"]').val(itemData['ean']);
                 $(parentRow).find('[name="measurement_unit"]').val(itemData['measurement_unit']);
                 $(parentRow).find('[name="item_price"]').val(itemData['price']);
+                calculateItemPriceSum(parentRow);
             }
         });
     }
-    
+
+    function initReceiptRowRemove(){
+        $(receiptNewForm).find('.deform-close-button').off('click').on('click', function (e) {
+            deform.removeSequenceItem($(this));
+            calculateItemPriceSum($(this).closest('.deform-seq-item'));
+        });
+    }
+
+    function calculateTotalSums(){
+        var receiptForm = $('#receipt-new-form');
+        var itemsSequence = $(receiptForm).find('.deform-seq');
+        var taxPercent = {{ tax_percent }};
+        var returnAmount = {{ return_amount }};
+        var returnAmountTotal = 0;
+        var baseAmount = new Decimal(0);
+        $(itemsSequence).find('.deform-seq-item').each(function (index) {
+            var itemPriceSum = $(this).find('input[name="item_price_sum"]');
+            baseAmount = baseAmount.add($(itemPriceSum).val());
+            var quantity = $(this).find('input[name="quantity"]').val();
+            returnAmountTotal = returnAmountTotal + (quantity * returnAmount);
+        });
+        $(receiptForm).find('input[name="base_amount"]').val(baseAmount.toFixed(2));
+        var taxAmount = baseAmount.times(new Decimal(taxPercent/100));
+        $(receiptForm).find('input[name="tax_amount"]').val(taxAmount.toFixed(2));
+        $(receiptForm).find('input[name="return_amount"]').val(returnAmountTotal);
+        var totalAmount = baseAmount.add(taxAmount).add(returnAmountTotal);
+        $(receiptForm).find('input[name="total_amount"]').val(totalAmount.toFixed(2));
+    }
+
     function calculateItemPriceSum(itemRow) {
         var quantity = parseInt($(itemRow).find('input[name="quantity"]').val());
         var rebatePercent = parseFloat($(itemRow).find('input[name="rebate_percent"]').val());
@@ -163,22 +190,24 @@ $(document).ready(function(){
         if (!$.isNumeric(rebatePercent) || rebatePercent < 0 || rebatePercent > 100) {
             return false
         }
+
         var selectedValue = $(itemRow).find('select[name="item_id"]').val();
         var itemData = getSelectedItemData(selectedValue);
         if (itemData) {
             var selectedItemPrice = new Decimal(itemData['price']);
             var itemPriceSum = selectedItemPrice.times(quantity);
             itemPriceSum = itemPriceSum.minus(itemPriceSum.times(rebatePercent/100));
-            $(itemRow).find('input[name="item_price_sum"]').val(itemPriceSum.toString());
+            $(itemRow).find('input[name="item_price_sum"]').val(itemPriceSum.toFixed(2));
+            calculateTotalSums();
         }
     }
     function initReceiptCalculator(){
         var receiptForm = $('#receipt-new-form');
         $(receiptForm).find('input[name="quantity"]').on('keyup', function (e) {
-           calculateItemPriceSum($(this).closest('.row'));
+           calculateItemPriceSum($(this).closest('.deform-seq-item'));
         });
         $(receiptForm).find('input[name="rebate_percent"]').on('keyup', function (e) {
-            calculateItemPriceSum($(this).closest('.row'));
+            calculateItemPriceSum($(this).closest('.deform-seq-item'));
         });
     }
 
@@ -186,11 +215,18 @@ $(document).ready(function(){
 
     initReceiptCalculator();
 
-    $('#receipt-new-form').find('.deform-seq-add').off('click').on('click', function (e) {
+    var receiptNewForm = $('#receipt-new-form');
+
+    $(receiptNewForm).find('.deform-seq-add').off('click').on('click', function (e) {
         deform.appendSequenceItem($(this));
         initReceiptItemsSelect();
+        initReceiptRowRemove();
         initReceiptCalculator();
     });
+
+    initDatepicker($(receiptNewForm).find('input[name="issued_date"]'));
+    initDatepicker($(receiptNewForm).find('input[name="currency_date"]'));
+
 });
 
 

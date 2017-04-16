@@ -8,7 +8,8 @@ from fakturahr.views.client.client import client_view
 from fakturahr.views.index import index_view
 from fakturahr.views.item.item import item_view
 from fakturahr.views.receipt.receipt import receipt_view
-from fakturahr.models.database import init_db
+from fakturahr.models.database import init_models, Session
+from fakturahr.utility.init_db import init_db
 
 
 class AppRequest(Request):
@@ -29,9 +30,12 @@ if __name__ == '__main__':
     # bootstrap_widget_templates_path = os.path.join(get_root_path(), 'templates', 'bootstrap_widget_templates')
     renderer = jinja2_renderer_factory(search_paths=['fakturahr:templates/bootstrap_widget_templates'])
     Form.set_default_renderer(renderer)
+    init_models()
+
     init_db()
 
     app = create_app()
+
     app.secret_key = 'some_secret'
     app.register_blueprint(index_view)
     app.register_blueprint(client_view)

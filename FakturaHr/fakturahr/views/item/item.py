@@ -5,7 +5,7 @@ from deform import Form, ValidationFailure
 
 from fakturahr.models.database import Session
 from fakturahr.models.models import Item
-from fakturahr.views.item.validators import ItemNewValidator
+from fakturahr.views.item.validators import ItemNewSchema
 
 item_view = Blueprint('item_view', __name__, url_prefix='/item')
 
@@ -16,6 +16,12 @@ ITEM_LIST_TEMPLATE = 'item/item_list.jinja2'
 def get_item_list():
     items = Session.query(Item).filter(Item.deleted == False).all()
     return items
+
+
+def get_item(item_id):
+    item_object = Session.query(Item).filter(Item.id == item_id,
+                                             Item.deleted == False).first()
+    return item_object
 
 
 @item_view.route('/list', methods=['GET'])
@@ -33,7 +39,7 @@ def item_new():
     if 'cancel' in request.form:
         return redirect(url_for('.item_list'))
 
-    item_new_schema = ItemNewValidator()
+    item_new_schema = ItemNewSchema()
     item_new_form = Form(item_new_schema, action=url_for('.item_new'), buttons=('submit', 'cancel'))
 
     if 'submit' in request.form:
@@ -71,10 +77,10 @@ def item_edit(item_id):
 
     item = Session.query(Item).filter(Item.id == item_id, Item.deleted == False).first()
     if not item:
-        flash(u'Artikl nije pronađen', 'error')
+        flash(u'Artikl nije pronađen', 'danger')
         return redirect(url_for('.item_list'))
 
-    item_new_schema = ItemNewValidator()
+    item_new_schema = ItemNewSchema()
     item_new_form = Form(item_new_schema,
                          action=url_for('.item_edit', item_id=item.id),
                          appstruct=item.get_appstruct(),
@@ -116,7 +122,7 @@ def item_edit(item_id):
 def item_delete(item_id):
     item = Session.query(Item).filter(Item.id == item_id, Item.deleted == False).first()
     if not item:
-        flash(u'Artikl nije pronađen', 'error')
+        flash(u'Artikl nije pronađen', 'danger')
         return redirect(url_for('.item_list'))
 
     item.deleted = True
