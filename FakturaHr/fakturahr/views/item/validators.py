@@ -61,7 +61,7 @@ class ItemNewSchema(Schema):
     price = SchemaNode(Decimal('0.01', decimal.ROUND_HALF_EVEN),
                        title=Item.PRICE,
                        widget=TextInputWidget(),
-                       missing=null,
+                       missing_msg=REQUIRED_FIELD,
                        validator=Range(min=0,
                                        max=999999.99,
                                        min_err=MIN_NUMBER_RANGE_ERROR.format(0),

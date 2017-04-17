@@ -11,7 +11,7 @@ from fakturahr.models.models import Receipt, ReceiptItem, Item, User
 from fakturahr.views.receipt.validators import ReceiptNewValidator
 from fakturahr.views.item.item import get_item_list, get_item
 from fakturahr.views.client.client import get_client_list
-from fakturahr.utility.helper import get_value_or_colander_null
+from fakturahr.utility.helper import get_value_or_colander_null, get_form_buttons
 from fakturahr.utility.receipt_export import get_receipt_document
 
 receipt_view = Blueprint('receipt_view', __name__, url_prefix='/receipt')
@@ -74,7 +74,7 @@ def receipt_new():
     receipt_new_form = Form(
         receipt_new_schema,
         action=url_for('.receipt_new'),
-        buttons=('submit', 'cancel'),
+        buttons=get_form_buttons(),
         formid='receipt-new-form',
         appstruct=appstruct
     )
@@ -196,7 +196,7 @@ def receipt_edit(receipt_id):
     receipt_new_form = Form(
         receipt_new_schema,
         action=url_for('.receipt_edit', receipt_id=receipt.id),
-        buttons=('submit', 'cancel'),
+        buttons=get_form_buttons(),
         formid='receipt-new-form',
         appstruct=appstruct
     )

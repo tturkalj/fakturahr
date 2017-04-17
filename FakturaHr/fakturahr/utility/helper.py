@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import colander
 from datetime import datetime
-
+from deform import Button
 
 def now():
     return datetime.utcnow()
@@ -20,3 +20,9 @@ def get_value_or_colander_null(value):
         return value
     else:
         return colander.null
+
+
+def get_form_buttons():
+    submit = Button(name='submit', title=u'Potvrdi', type='submit', css_class='btn-primary')
+    cancel = Button(name='cancel', title=u'Odustani', type='submit', css_class='btn-default')
+    return submit, cancel

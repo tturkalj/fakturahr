@@ -103,7 +103,7 @@
                     id="{{receipt_new_form.formid+button.name}}"
                     name="{{button.name}}"
                     type="{{button.type}}"
-                    class="btn btnText submit primaryAction"
+                    class="btn {{ button.css_class }}"
                     value="{{ button.value }}"
                     {% if button.disabled %}
                     disabled="disabled"
@@ -166,12 +166,16 @@ $(document).ready(function(){
         var returnAmount = {{ return_amount }};
         var returnAmountTotal = 0;
         var baseAmount = new Decimal(0);
-        $(itemsSequence).find('.deform-seq-item').each(function (index) {
-            var itemPriceSum = $(this).find('input[name="item_price_sum"]');
-            baseAmount = baseAmount.add($(itemPriceSum).val());
-            var quantity = $(this).find('input[name="quantity"]').val();
-            returnAmountTotal = returnAmountTotal + (quantity * returnAmount);
-        });
+        var sequenceItem = $(itemsSequence).find('.deform-seq-item');
+        for(var i=0; i < sequenceItem.length; i++){
+            var itemPriceSum = $(sequenceItem[i]).find('input[name="item_price_sum"]').val();
+            if($.isNumeric(itemPriceSum)){
+                baseAmount = baseAmount.add(itemPriceSum);
+                var quantity = $(sequenceItem[i]).find('input[name="quantity"]').val();
+                returnAmountTotal = returnAmountTotal + (quantity * returnAmount);
+            }
+        };
+
         $(receiptForm).find('input[name="base_amount"]').val(baseAmount.toFixed(2));
         var taxAmount = baseAmount.times(new Decimal(taxPercent/100));
         $(receiptForm).find('input[name="tax_amount"]').val(taxAmount.toFixed(2));

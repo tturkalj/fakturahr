@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import colander
 from flask import Blueprint, render_template, abort, request, redirect, url_for, flash
-from deform import Form, ValidationFailure
+from deform import Form, ValidationFailure, Button
 
 from fakturahr.models.database import Session
 from fakturahr.models.models import Client
 from fakturahr.views.client.validators import ClientNewValidator
+from fakturahr.utility.helper import get_form_buttons
 
 client_view = Blueprint('client_view', __name__, url_prefix='/client')
 
@@ -34,7 +35,12 @@ def client_new():
         return redirect(url_for('.client_list'))
 
     client_new_schema = ClientNewValidator()
-    client_new_form = Form(client_new_schema, action=url_for('.client_new'), buttons=('submit', 'cancel'))
+
+    client_new_form = Form(
+        client_new_schema,
+        action=url_for('.client_new'),
+        buttons=get_form_buttons()
+    )
 
     if 'submit' in request.form:
         print request.form
@@ -69,11 +75,12 @@ def client_edit(client_id):
         return redirect(url_for('.client_list'))
 
     client_new_schema = ClientNewValidator()
-    client_new_form = Form(client_new_schema,
-                           action=url_for('.client_edit', client_id=client.id),
-                           appstruct=client.get_appstruct(),
-                           buttons=('submit', 'cancel')
-                           )
+    client_new_form = Form(
+        client_new_schema,
+        action=url_for('.client_edit', client_id=client.id),
+        appstruct=client.get_appstruct(),
+        buttons=get_form_buttons()
+    )
 
     if 'submit' in request.form:
         print request.form

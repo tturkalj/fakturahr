@@ -6,6 +6,7 @@ from deform import Form, ValidationFailure
 from fakturahr.models.database import Session
 from fakturahr.models.models import Item
 from fakturahr.views.item.validators import ItemNewSchema
+from fakturahr.utility.helper import get_form_buttons
 
 item_view = Blueprint('item_view', __name__, url_prefix='/item')
 
@@ -40,7 +41,11 @@ def item_new():
         return redirect(url_for('.item_list'))
 
     item_new_schema = ItemNewSchema()
-    item_new_form = Form(item_new_schema, action=url_for('.item_new'), buttons=('submit', 'cancel'))
+    item_new_form = Form(
+        item_new_schema,
+        action=url_for('.item_new'),
+        buttons=get_form_buttons()
+    )
 
     if 'submit' in request.form:
         print request.form
@@ -81,11 +86,12 @@ def item_edit(item_id):
         return redirect(url_for('.item_list'))
 
     item_new_schema = ItemNewSchema()
-    item_new_form = Form(item_new_schema,
-                         action=url_for('.item_edit', item_id=item.id),
-                         appstruct=item.get_appstruct(),
-                         buttons=('submit', 'cancel')
-                         )
+    item_new_form = Form(
+        item_new_schema,
+        action=url_for('.item_edit', item_id=item.id),
+        appstruct=item.get_appstruct(),
+        buttons=get_form_buttons()
+    )
 
     if 'submit' in request.form:
         try:
