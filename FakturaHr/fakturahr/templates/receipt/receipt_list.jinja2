@@ -50,13 +50,13 @@
                             {{ receipt.get_receipt_item_quantity_total() }}
                         </td>
                         <td data-th="Osnovica" style="overflow: hidden; text-overflow: ellipsis;">
-                            {{ receipt.get_base_amount() }}
+                            {{ receipt.get_base_amount_formatted() }}
                         </td>
                         <td data-th="PDV" style="overflow: hidden; text-overflow: ellipsis;">
-                            {{ receipt.get_tax_amount() }}
+                            {{ receipt.get_tax_amount_formatted() }}
                         </td>
                         <td data-th="Ukupno" style="overflow: hidden; text-overflow: ellipsis;">
-                            {{ receipt.get_total_amount() }}
+                            {{ receipt.get_total_amount_formatted() }}
                         </td>
                         <td data-th="Akcije">
                             <a href="{{ url_for('.receipt_edit', receipt_id=receipt.id) }}" class="btn btn-default" data-toggle="modal" title="{{ 'Uredi' }}">

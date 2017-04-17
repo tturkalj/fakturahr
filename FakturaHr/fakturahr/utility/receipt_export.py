@@ -34,7 +34,10 @@ def get_receipt_document(receipt):
     receipt_items_table = receipt_document.tables[2]
     receipt_items = receipt.items.filter(ReceiptItem.deleted == False).order_by(ReceiptItem.id.asc())
     for index, item in enumerate(receipt_items, 1):
-        new_row = receipt_items_table.add_row()
+        if index == 1:
+            new_row = receipt_items_table.rows[1]
+        else:
+            new_row = receipt_items_table.add_row()
         new_row.cells[0].paragraphs[0].text = u'{0}'.format(index)
         new_row.cells[0].paragraphs[0].style = table_contents_small_style
 
