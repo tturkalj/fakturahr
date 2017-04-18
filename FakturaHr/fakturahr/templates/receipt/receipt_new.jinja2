@@ -88,9 +88,6 @@
             <div class="row .mb-1">
                 {{ form_field(receipt_new_form['operator'], 2) }}
             </div>
-            <div class="row .mb-1">
-                {{ form_field(receipt_new_form['buyer_name'], 2) }}
-            </div>
 
             <div class="row .mb-1" style="margin-top: 10px;">
             {{ receipt_new_form['receipt_items'].serialize() | safe }}
@@ -125,15 +122,16 @@
 $(document).ready(function(){
     Decimal.set({ precision: 8, rounding: Decimal.ROUND_HALF_EVEN });
 
+    var itemDataList = {{ receipt_new_form.schema.bindings['item_data_list'] }};
 
     function getSelectedItemData(selectedValue) {
-        var itemDataList = {{ receipt_new_form.schema.bindings['item_data_list'] }};
         var itemData = null;
-        $.each(itemDataList, function (index, listObject) {
-            if (listObject['id'] == selectedValue) {
-                itemData = listObject
+        for(var i=0; i < itemDataList.length; i++){
+            if (itemDataList[i]['id'] == selectedValue) {
+                itemData = itemDataList[i];
+                break;
             }
-        });
+        }
         return itemData;
     }
 
@@ -163,7 +161,6 @@ $(document).ready(function(){
         var receiptForm = $('#receipt-new-form');
         var itemsSequence = $(receiptForm).find('.deform-seq');
         var taxPercent = {{ tax_percent }};
-        var returnAmount = {{ return_amount }};
         var returnAmountTotal = 0;
         var baseAmount = new Decimal(0);
         var sequenceItem = $(itemsSequence).find('.deform-seq-item');
@@ -172,7 +169,9 @@ $(document).ready(function(){
             if($.isNumeric(itemPriceSum)){
                 baseAmount = baseAmount.add(itemPriceSum);
                 var quantity = $(sequenceItem[i]).find('input[name="quantity"]').val();
-                returnAmountTotal = returnAmountTotal + (quantity * returnAmount);
+                var selectedValue = $(sequenceItem[i]).find('select[name="item_id"]').val();
+                var selectedItemData = getSelectedItemData(selectedValue);
+                returnAmountTotal = returnAmountTotal + (quantity * selectedItemData['return_amount']);
             }
         };
 

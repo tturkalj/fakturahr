@@ -26,6 +26,7 @@
                     <th>Komada u pakiranju</th>
                     <th>Komada na paleti</th>
                     <th>Cijena VPC</th>
+                    <th>Povratna naknada</th>
                     <th>Akcije</th>
                 </tr>
             </thead>
@@ -49,6 +50,9 @@
                         </td>
                         <td data-th="Cijena VPC" style="overflow: hidden; text-overflow: ellipsis;">
                             {{ item.get_price_formatted() }}
+                        </td>
+                        <td data-th="Povratna naknada" style="overflow: hidden; text-overflow: ellipsis;">
+                            {{ item.get_return_amount_formatted() }}
                         </td>
                         <td data-th="Akcije">
                             <a href="{{ url_for('.item_edit', item_id=item.id) }}" class="btn btn-default" data-toggle="tooltip" title="{{ 'Uredi' }}">

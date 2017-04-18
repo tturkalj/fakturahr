@@ -59,13 +59,13 @@
                             {{ receipt.get_total_amount_formatted() }}
                         </td>
                         <td data-th="Akcije">
-                            <a href="{{ url_for('.receipt_edit', receipt_id=receipt.id) }}" class="btn btn-default" data-toggle="modal" title="{{ 'Uredi' }}">
+                            <a href="{{ url_for('.receipt_edit', receipt_id=receipt.id) }}" class="btn btn-default btn-xs" data-toggle="modal" title="{{ 'Uredi' }}">
                                 <span class="glyphicon glyphicon-edit"></span>
                             </a>
-                            <a href="{{ url_for('.receipt_export', receipt_id=receipt.id) }}" class="btn btn-default" data-toggle="modal" title="{{ 'Generiraj dokument' }}">
+                            <a href="{{ url_for('.receipt_export', receipt_id=receipt.id) }}" class="btn btn-default btn-xs" data-toggle="modal" title="{{ 'Generiraj dokument' }}">
                                 <span class="glyphicon glyphicon-download-alt"></span>
                             </a>
-                            <button class="btn btn-default"
+                            <button class="btn btn-default btn-xs"
                                     data-toggle="tooltip"
                                     title="{{ 'Obriši' }}"
                                     onclick="toggleModal(this);"

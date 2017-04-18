@@ -28,6 +28,15 @@ def client_id_validator(node, kw):
     clients = kw.get('clients')
     return colander.OneOf([client[0] for client in clients])
 
+@colander.deferred
+def payment_type_widget(node, kw):
+    payment_types = kw.get('payment_types')
+    return SelectWidget(values=payment_types, css_class='input-medium')
+
+@colander.deferred
+def payment_type_validator(node, kw):
+    payment_types = kw.get('payment_types')
+    return colander.OneOf([payment_type[0] for payment_type in payment_types])
 
 def validate_date(node, value):
     try:
@@ -249,35 +258,20 @@ class ReceiptNewValidator(colander.Schema):
         )
     )
     payment_type = colander.SchemaNode(
-        colander.String(),
+        colander.Integer(),
         title=u'Način plaćanja',
-        default=u'Transakcijski račun (virman)',
+        default=Receipt.SLIP,
         missing_msg=REQUIRED_FIELD,
-        widget=TextInputWidget(
-            readonly=True,
-            readonly_template=u'readonly/textinput_readonly'
-        )
+        widget=payment_type_widget,
+        validator=payment_type_validator
     )
     operator = colander.SchemaNode(
         colander.String(),
         title=u'Operater',
-        default=u'Miroslav Šebrek',
         missing_msg=REQUIRED_FIELD,
         widget=TextInputWidget(
             readonly=True,
             readonly_template=u'readonly/textinput_readonly'
-        )
-    )
-    buyer_name = colander.SchemaNode(
-        colander.String(),
-        title=u'Robu preuzeo',
-        widget=TextInputWidget(),
-        missing_msg=REQUIRED_FIELD,
-        validator=colander.Length(
-            min=1,
-            max=100,
-            min_err=MIN_CHAR_LENGTH_ERROR.format(1),
-            max_err=MAX_CHAR_LENGTH_ERROR.format(100)
         )
     )
     receipt_items = ReceiptItemSequence(

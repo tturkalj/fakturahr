@@ -108,6 +108,7 @@ class Item(Base):
     pack_size = Column(Integer, nullable=True)
     pallete_size = Column(Integer, nullable=True)
     price = Column(Numeric(8, 2), nullable=True)
+    return_amount = Column(Float(), nullable=False, default=0.0)
 
     NAME = u'Naziv'
     EAN = u'EAN'
@@ -116,6 +117,7 @@ class Item(Base):
     PALLETE_SIZE = u'Komada na paleti'
     PRICE = u'Cijena'
     PRICE_SUM = u'Iznos'
+    RETURN_AMOUNT = u'Povratna naknada'
 
     def get_name(self):
         if self.name:
@@ -142,7 +144,7 @@ class Item(Base):
             return self.pallete_size
         return u'Nema broj na paleti'
 
-    def get_price(self):
+    def get_price_float(self):
         if self.price is not None:
             return float(self.price)
         else:
@@ -159,6 +161,17 @@ class Item(Base):
             return value
         return null
 
+    def get_return_amount_formatted(self):
+        if self.return_amount is not None:
+            return get_number_formatted(self.return_amount)
+        else:
+            u'Nema povratnu naknadu'
+
+    def get_return_amount(self):
+        if self.return_amount is not None:
+            return self.return_amount
+        return None
+
     def get_appstruct(self):
         return {
             'name': self.name,
@@ -167,11 +180,14 @@ class Item(Base):
             'pack_size': self.get_value_or_null(self.pack_size),
             'pallete_size': self.get_value_or_null(self.pallete_size),
             'price': self.get_value_or_null(self.price),
+            'return_amount': self.get_value_or_null(self.return_amount)
         }
 
 
 class Receipt(Base):
     SLIP = 0
+    COMPENSATION = 1
+
     number = Column(Unicode(100), nullable=False)
     issued_date = Column(DateTime, nullable=False)
     currency_date = Column(DateTime, nullable=False)
@@ -183,7 +199,6 @@ class Receipt(Base):
     tax_amount = Column(Numeric(8, 2), nullable=False)
     return_amount = Column(Numeric(8, 2), nullable=False)
     total_amount = Column(Numeric(8, 2), nullable=False)
-    buyer_name = Column(Unicode(100), nullable=True)
 
     user_id = Column(ForeignKey('user.id'), index=True)
     client_id = Column(ForeignKey('client.id'), index=True)
@@ -194,14 +209,14 @@ class Receipt(Base):
     CLIENT = u'Klijent'
 
     TAX_PERCENT = 25
-    RETURN_AMOUNT = 0.5
 
     date_format = u'%d.%m.%Y.'
 
     @classmethod
     def get_payment_option_dict(cls):
         return {
-            cls.SLIP: u'Transakcijski račun (virman)'
+            cls.SLIP: u'Transakcijski račun (virman)',
+            cls.COMPENSATION: u'Kompenzacijski račun'
         }
 
     def get_number(self):
@@ -297,11 +312,6 @@ class Receipt(Base):
             return get_number_formatted(self.total_amount)
         else:
             return u'Nema ukupan iznos'
-
-    def get_buyer_name(self):
-        if self.buyer_name:
-            return self.buyer_name
-        return u'Nema ime kupca'
 
     def get_operator(self):
         if self.user_id:

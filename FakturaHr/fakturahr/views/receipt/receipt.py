@@ -47,8 +47,9 @@ def receipt_new():
             'name': item.get_name(),
             'ean': item.get_ean(),
             'measurement_unit': item.get_measurement_unit(),
-            'price': item.get_price(),
-            'price_formatted': item.get_price_formatted()
+            'price': item.get_price_float(),
+            'price_formatted': item.get_price_formatted(),
+            'return_amount': item.get_return_amount()
         } for item in item_list
     ]
 
@@ -59,16 +60,19 @@ def receipt_new():
     client_id_name_list = [(client.id, client.get_name()) for client in client_list]
     client_id_name_list.insert(0, ('', '-Odaberi klijenta-'))
 
+    payment_types = [(payment_type, payment_name)
+                     for payment_type, payment_name in Receipt.get_payment_option_dict().iteritems()]
+
     receipt_new_schema = ReceiptNewValidator().bind(
         items=item_id_name_list,
         item_data_list=json.dumps(item_data_list),
-        clients=client_id_name_list
+        clients=client_id_name_list,
+        payment_types=payment_types
     )
 
     default_user = Session.query(User).filter(User.firstname == u'Miroslav').first()
     appstruct = {
         'operator': u'{0} {1}'.format(default_user.firstname, default_user.lastname),
-        'payment_type': Receipt.get_payment_option_dict()[Receipt.SLIP]
     }
 
     receipt_new_form = Form(
@@ -84,7 +88,6 @@ def receipt_new():
         'receipt_new_form': receipt_new_form,
         'item_data_list': json.dumps(item_data_list),
         'tax_percent': Receipt.TAX_PERCENT,
-        'return_amount': Receipt.RETURN_AMOUNT
     }
 
     if 'submit' in request.form:
@@ -146,8 +149,9 @@ def receipt_edit(receipt_id):
             'name': item.get_name(),
             'ean': item.get_ean(),
             'measurement_unit': item.get_measurement_unit(),
-            'price': item.get_price(),
-            'price_formatted': item.get_price_formatted()
+            'price': item.get_price_float(),
+            'price_formatted': item.get_price_formatted(),
+            'return_amount': item.get_return_amount()
         } for item in item_list
     ]
 
@@ -158,14 +162,17 @@ def receipt_edit(receipt_id):
     client_id_name_list = [(client.id, client.get_name()) for client in client_list]
     client_id_name_list.insert(0, ('', '-Odaberi klijenta-'))
 
+    payment_types = [(payment_type, payment_name)
+                     for payment_type, payment_name in Receipt.get_payment_option_dict().iteritems()]
+
     receipt_new_schema = ReceiptNewValidator().bind(
         items=item_id_name_list,
         item_data_list=json.dumps(item_data_list),
-        clients=client_id_name_list
+        clients=client_id_name_list,
+        payment_types=payment_types
     )
 
     default_user = Session.query(User).filter(User.firstname == u'Miroslav').first()
-
 
     appstruct = {
         'client_id': receipt.client_id,
@@ -179,9 +186,8 @@ def receipt_edit(receipt_id):
         'tax_amount': get_value_or_colander_null(receipt.tax_amount),
         'return_amount': get_value_or_colander_null(receipt.return_amount),
         'total_amount': get_value_or_colander_null(receipt.total_amount),
-        'buyer_name': get_value_or_colander_null(receipt.buyer_name),
         'operator': u'{0} {1}'.format(default_user.firstname, default_user.lastname),
-        'payment_type': Receipt.get_payment_option_dict()[Receipt.SLIP],
+        'payment_type': get_value_or_colander_null(receipt.payment_type),
         'receipt_items': [{
             'item_id': receipt_item.item_id,
             'ean': get_value_or_colander_null(receipt_item.ean),
@@ -205,8 +211,7 @@ def receipt_edit(receipt_id):
         'page_title': u'Uredi račun',
         'receipt_new_form': receipt_new_form,
         'item_data_list': json.dumps(item_data_list),
-        'tax_percent': Receipt.TAX_PERCENT,
-        'return_amount': Receipt.RETURN_AMOUNT
+        'tax_percent': receipt.tax_percent,
     }
 
     if 'submit' in request.form:
