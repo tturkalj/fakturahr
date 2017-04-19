@@ -115,6 +115,7 @@ def receipt_new():
         added_receipt_items_list = []
         for item in appstruct['receipt_items']:
             item_object = get_item(item['item_id'])
+            item_object.stock_quantity -= item['quantity']
 
             new_receipt_item = ReceiptItem()
             new_receipt_item.receipt_id = new_receipt.id
@@ -122,6 +123,7 @@ def receipt_new():
             for key in item:
                 if hasattr(new_receipt_item, key):
                     setattr(new_receipt_item, key, item[key])
+
             added_receipt_items_list.append(new_receipt_item)
         Session.add_all(added_receipt_items_list)
         Session.flush()
@@ -252,10 +254,13 @@ def receipt_edit(receipt_id):
                     if hasattr(receipt_item, key):
                         if appstruct_receipt_item[key] != colander.null:
                             if appstruct_receipt_item[key] != getattr(receipt_item, key):
-                                setattr(receipt_item, key, appstruct_receipt_item[key])
+                                item_object = get_item(appstruct_receipt_item['item_id'])
                                 if key == 'item_id':
-                                    item_object = get_item(appstruct_receipt_item['item_id'])
                                     receipt_item.name = item_object.name
+                                elif key == 'quantity':
+                                    quantity_delta = receipt_item.quantity - appstruct_receipt_item['quantity']
+                                    item_object.stock_quantity += quantity_delta
+                                setattr(receipt_item, key, appstruct_receipt_item[key])
                                 edited = True
                         else:
                             if getattr(receipt_item, key) is not None:
@@ -266,6 +271,8 @@ def receipt_edit(receipt_id):
             if index not in receipt_items_indexed:
                 item_object = Session.query(Item).filter(Item.id == appstruct_receipt_item['item_id'],
                                                          Item.deleted == False).first()
+
+                item_object.stock_quantity -= appstruct_receipt_item['quantity']
 
                 new_receipt_item = ReceiptItem()
                 new_receipt_item.receipt_id = receipt.id

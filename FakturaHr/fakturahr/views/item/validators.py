@@ -92,3 +92,14 @@ class ItemNewSchema(Schema):
             max_err=MAX_NUMBER_RANGE_ERROR.format(9999)
         )
     )
+    stock_quantity = SchemaNode(
+        Integer(),
+        title=Item.STOCK_QUANTITY,
+        widget=TextInputWidget(),
+        validator=Range(
+            min=-9999,
+            max=9999,
+            min_err=MIN_NUMBER_RANGE_ERROR.format(-9999),
+            max_err=MAX_NUMBER_RANGE_ERROR.format(9999)
+        )
+    )

@@ -22,11 +22,11 @@
                 <tr>
                     <th>Ime</th>
                     <th>EAN</th>
-                    <th>Mjerna jedinica</th>
                     <th>Komada u pakiranju</th>
                     <th>Komada na paleti</th>
                     <th>Cijena VPC</th>
                     <th>Povratna naknada</th>
+                    <th>Količina u skladištu</th>
                     <th>Akcije</th>
                 </tr>
             </thead>
@@ -39,9 +39,6 @@
                         <td data-th="EAN" style="overflow: hidden; text-overflow: ellipsis;">
                             {{ item.get_ean() }}
                         </td>
-                        <td data-th="Mjerna jedinica" style="overflow: hidden; text-overflow: ellipsis;">
-                            {{ item.get_measurement_unit() }}
-                        </td>
                         <td data-th="Komada u pakiranju" style="overflow: hidden; text-overflow: ellipsis;">
                             {{ item.get_pack_size() }}
                         </td>
@@ -53,6 +50,9 @@
                         </td>
                         <td data-th="Povratna naknada" style="overflow: hidden; text-overflow: ellipsis;">
                             {{ item.get_return_amount_formatted() }}
+                        </td>
+                        <td data-th="Količina u skladištu" style="overflow: hidden; text-overflow: ellipsis;">
+                            {{ item.get_stock_quantity_formatted() }}
                         </td>
                         <td data-th="Akcije">
                             <a href="{{ url_for('.item_edit', item_id=item.id) }}" class="btn btn-default" data-toggle="tooltip" title="{{ 'Uredi' }}">

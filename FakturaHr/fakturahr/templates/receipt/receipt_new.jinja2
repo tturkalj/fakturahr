@@ -135,28 +135,6 @@ $(document).ready(function(){
         return itemData;
     }
 
-    function initReceiptItemsSelect(){
-        var receiptNewForm = $('#receipt-new-form');
-        $(receiptNewForm).find('select[name="item_id"]').on('change', function (e) {
-            var parentRow = $(this).closest('.deform-seq-item');
-            var selectedValue = $(this).val();
-            var itemData = getSelectedItemData(selectedValue);
-            if (itemData){
-                $(parentRow).find('[name="ean"]').val(itemData['ean']);
-                $(parentRow).find('[name="measurement_unit"]').val(itemData['measurement_unit']);
-                $(parentRow).find('[name="item_price"]').val(itemData['price']);
-                calculateItemPriceSum(parentRow);
-            }
-        });
-    }
-
-    function initReceiptRowRemove(){
-        $(receiptNewForm).find('.deform-close-button').off('click').on('click', function (e) {
-            deform.removeSequenceItem($(this));
-            calculateItemPriceSum($(this).closest('.deform-seq-item'));
-        });
-    }
-
     function calculateTotalSums(){
         var receiptForm = $('#receipt-new-form');
         var itemsSequence = $(receiptForm).find('.deform-seq');
@@ -214,18 +192,47 @@ $(document).ready(function(){
         });
     }
 
+
+    function initReceiptItemsSelect(){
+        var receiptNewForm = $('#receipt-new-form');
+        $(receiptNewForm).find('select[name="item_id"]').on('change', function (e) {
+            var parentRow = $(this).closest('.deform-seq-item');
+            var selectedValue = $(this).val();
+            var itemData = getSelectedItemData(selectedValue);
+            if (itemData){
+                $(parentRow).find('[name="ean"]').val(itemData['ean']);
+                $(parentRow).find('[name="measurement_unit"]').val(itemData['measurement_unit']);
+                $(parentRow).find('[name="item_price"]').val(itemData['price']);
+                calculateItemPriceSum(parentRow);
+            }
+        });
+    }
+
+    function initReceiptRowRemove(){
+        var receiptNewForm = $('#receipt-new-form');
+        $(receiptNewForm).find('.deform-close-button').off('click').on('click', function (e) {
+            deform.removeSequenceItem($(this));
+            calculateItemPriceSum($(this).closest('.deform-seq-item'));
+        });
+    }
+
+    function initReceiptRowAdd(){
+        var receiptNewForm = $('#receipt-new-form');
+        $(receiptNewForm).find('.deform-seq-add').off('click').on('click', function (e) {
+            deform.appendSequenceItem($(this));
+            initReceiptItemsSelect();
+            initReceiptRowRemove();
+            initReceiptCalculator();
+        });
+    }
+
     initReceiptItemsSelect();
 
+    initReceiptRowRemove();
+
+    initReceiptRowAdd();
+
     initReceiptCalculator();
-
-    var receiptNewForm = $('#receipt-new-form');
-
-    $(receiptNewForm).find('.deform-seq-add').off('click').on('click', function (e) {
-        deform.appendSequenceItem($(this));
-        initReceiptItemsSelect();
-        initReceiptRowRemove();
-        initReceiptCalculator();
-    });
 
     initDatepicker($(receiptNewForm).find('input[name="issued_date"]'));
     initDatepicker($(receiptNewForm).find('input[name="currency_date"]'));

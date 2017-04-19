@@ -109,6 +109,7 @@ class Item(Base):
     pallete_size = Column(Integer, nullable=True)
     price = Column(Numeric(8, 2), nullable=True)
     return_amount = Column(Float(), nullable=False, default=0.0)
+    stock_quantity = Column(Integer, nullable=False)
 
     NAME = u'Naziv'
     EAN = u'EAN'
@@ -118,6 +119,7 @@ class Item(Base):
     PRICE = u'Cijena'
     PRICE_SUM = u'Iznos'
     RETURN_AMOUNT = u'Povratna naknada'
+    STOCK_QUANTITY = u'Količina u skladištu'
 
     def get_name(self):
         if self.name:
@@ -172,6 +174,16 @@ class Item(Base):
             return self.return_amount
         return None
 
+    def get_stock_quantity(self):
+        if self.stock_quantity is not None:
+            return self.stock_quantity
+        return None
+
+    def get_stock_quantity_formatted(self):
+        if self.stock_quantity is not None:
+            return self.stock_quantity
+        return u'Nema količinu na skladištu'
+
     def get_appstruct(self):
         return {
             'name': self.name,
@@ -180,7 +192,8 @@ class Item(Base):
             'pack_size': self.get_value_or_null(self.pack_size),
             'pallete_size': self.get_value_or_null(self.pallete_size),
             'price': self.get_value_or_null(self.price),
-            'return_amount': self.get_value_or_null(self.return_amount)
+            'return_amount': self.get_value_or_null(self.return_amount),
+            'stock_quantity': self.get_value_or_null(self.stock_quantity)
         }
 
 
