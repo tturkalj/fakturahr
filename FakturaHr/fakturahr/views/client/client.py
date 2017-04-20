@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import colander
-from flask import Blueprint, render_template, abort, request, redirect, url_for, flash
+from flask import Blueprint, render_template, abort, request, redirect, url_for, flash, current_app
 from deform import Form, ValidationFailure, Button
 
 from fakturahr.models.database import Session
@@ -47,6 +47,7 @@ def client_new():
         try:
             appstruct = client_new_form.validate(request.form.items())
         except ValidationFailure as e:
+            current_app.logger.warning(e.error)
             template_context = {'client_new_form': client_new_form}
             return render_template(CLIENT_NEW_TEMPLATE, **template_context)
 
@@ -71,6 +72,7 @@ def client_edit(client_id):
 
     client = Session.query(Client).filter(Client.id == client_id, Client.deleted == False).first()
     if not client:
+        current_app.logger.warning(u'Client with id {0} not found'.format(client_id))
         flash(u'Klijent nije pronađen', 'danger')
         return redirect(url_for('.client_list'))
 
@@ -87,6 +89,7 @@ def client_edit(client_id):
         try:
             appstruct = client_new_form.validate(request.form.items())
         except ValidationFailure as e:
+            current_app.logger.warning(e.error)
             template_context = {'client_new_form': client_new_form}
             return render_template(CLIENT_NEW_TEMPLATE, **template_context)
 
@@ -116,9 +119,9 @@ def client_edit(client_id):
 
 @client_view.route('/delete/<int:client_id>', methods=['GET', 'POST'])
 def client_delete(client_id):
-
     client = Session.query(Client).filter(Client.id == client_id, Client.deleted == False).first()
     if not client:
+        current_app.logger.warning(u'Client with id {0} not found'.format(client_id))
         flash(u'Klijent nije pronađen', 'danger')
         return redirect(url_for('.client_list'))
 

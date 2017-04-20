@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import colander
-from flask import Blueprint, render_template, abort, request, redirect, url_for, flash
+from flask import Blueprint, render_template, abort, request, redirect, url_for, flash, current_app
 from deform import Form, ValidationFailure
 
 from fakturahr.models.database import Session
@@ -52,6 +52,7 @@ def item_new():
         try:
             appstruct = item_new_form.validate(request.form.items())
         except ValidationFailure as e:
+            current_app.logger.warning(e.error)
             template_context = {'item_new_form': item_new_form}
             return render_template(ITEM_NEW_TEMPLATE, **template_context)
 
@@ -82,6 +83,7 @@ def item_edit(item_id):
 
     item = Session.query(Item).filter(Item.id == item_id, Item.deleted == False).first()
     if not item:
+        current_app.logger.warning(u'Item with id {0} not found'.format(item_id))
         flash(u'Artikl nije pronađen', 'danger')
         return redirect(url_for('.item_list'))
 
@@ -97,6 +99,7 @@ def item_edit(item_id):
         try:
             appstruct = item_new_form.validate(request.form.items())
         except ValidationFailure as e:
+            current_app.logger.warning(e.error)
             template_context = {'item_new_form': item_new_form}
             return render_template(ITEM_NEW_TEMPLATE, **template_context)
 
@@ -128,6 +131,7 @@ def item_edit(item_id):
 def item_delete(item_id):
     item = Session.query(Item).filter(Item.id == item_id, Item.deleted == False).first()
     if not item:
+        current_app.logger.warning(u'Item with id {0} not found'.format(item_id))
         flash(u'Artikl nije pronađen', 'danger')
         return redirect(url_for('.item_list'))
 

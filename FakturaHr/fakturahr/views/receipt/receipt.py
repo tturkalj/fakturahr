@@ -5,7 +5,7 @@ from io import BytesIO
 from deform import Form, ValidationFailure
 from datetime import datetime
 from tempfile import NamedTemporaryFile
-from flask import Blueprint, render_template, abort, request, redirect, url_for, flash, send_file
+from flask import Blueprint, render_template, abort, request, redirect, url_for, flash, send_file, current_app
 from fakturahr.models.database import Session
 from fakturahr.models.models import Receipt, ReceiptItem, Item, User
 from fakturahr.views.receipt.validators import ReceiptNewValidator
@@ -95,6 +95,7 @@ def receipt_new():
             controls = request.form.items(multi=True)
             appstruct = receipt_new_form.validate(controls)
         except ValidationFailure as e:
+            current_app.logger.warning(e.error)
             return render_template(RECEIPT_NEW_TEMPLATE, **template_context)
 
         new_receipt = Receipt()
@@ -141,6 +142,7 @@ def receipt_edit(receipt_id):
 
     receipt = Session.query(Receipt).filter(Receipt.id == receipt_id, Receipt.deleted == False).first()
     if not receipt:
+        current_app.logger.warning(u'Receipt with id {0} not found'.format(receipt_id))
         flash(u'Račun nije pronađen', 'danger')
         return redirect(url_for('.receipt_list'))
 
@@ -221,6 +223,7 @@ def receipt_edit(receipt_id):
             controls = request.form.items(multi=True)
             appstruct = receipt_new_form.validate(controls)
         except ValidationFailure as e:
+            current_app.logger.warning(e.error)
             template_context = {'receipt_new_form': receipt_new_form}
             return render_template(RECEIPT_NEW_TEMPLATE, **template_context)
 
@@ -297,6 +300,7 @@ def receipt_delete(receipt_id):
 
     receipt = Session.query(Receipt).filter(Receipt.id == receipt_id, Receipt.deleted == False).first()
     if not receipt:
+        current_app.logger.warning(u'Receipt with id {0} not found'.format(receipt_id))
         flash(u'Račun nije pronađen', 'danger')
         return redirect(url_for('.receipt_list'))
 
@@ -313,6 +317,7 @@ def receipt_delete(receipt_id):
 def receipt_export(receipt_id):
     receipt = Session.query(Receipt).filter(Receipt.id == receipt_id, Receipt.deleted == False).first()
     if not receipt:
+        current_app.logger.warning(u'Receipt with id {0} not found'.format(receipt_id))
         flash(u'Račun nije pronađen', 'danger')
         return redirect(url_for('.receipt_list'))
 
