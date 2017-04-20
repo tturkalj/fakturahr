@@ -1,7 +1,0 @@
-na artikl povratna naknada
-na racunu: maknut robu preuzeo, dodat kompenzaciju za vrstu placanja, pogledat error u vezi Decimala
-na dokumentu: smanjiti tablice, maknuti bordere di ne treba
-dodati podatke o robi na skladistu
-
-
-PITAT za zaokruzivanje brojeva
