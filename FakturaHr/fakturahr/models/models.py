@@ -218,6 +218,18 @@ class ClientItem(Base):
         self.item_id = item_id
         self.price = price
 
+    def get_price_float(self):
+        if self.price is not None:
+            return float(self.price)
+        else:
+            return None
+
+    def get_price_formatted(self):
+        if self.price is not None:
+            return get_number_formatted(self.price)
+        else:
+            u'Nema cijenu'
+
 
 class Receipt(Base):
     SLIP = 0

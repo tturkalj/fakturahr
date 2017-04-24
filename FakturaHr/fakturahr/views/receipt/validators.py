@@ -53,7 +53,6 @@ class ReceiptItemSchema(colander.Schema):
         validator=item_id_validator,
         missing_msg=REQUIRED_FIELD
     )
-
     ean = colander.SchemaNode(
         colander.String(),
         title=Item.EAN,
@@ -139,14 +138,7 @@ class ReceiptItemSequence(colander.SequenceSchema):
     )
 
 
-class ReceiptNewValidator(colander.Schema):
-    client_id = colander.SchemaNode(
-        colander.Integer(),
-        title=Receipt.CLIENT,
-        widget=client_id_widget,
-        validator=client_id_validator,
-        missing_msg=REQUIRED_FIELD
-    )
+class ReceiptBaseValidator(colander.Schema):
     number = colander.SchemaNode(
         colander.String(),
         title=u'Broj računa',
@@ -280,4 +272,28 @@ class ReceiptNewValidator(colander.Schema):
             template='receipt_item_sequence.jinja2',
             item_template='receipt_item_sequence_item.jinja2'
         )
+    )
+
+
+class ReceiptNewValidator(ReceiptBaseValidator):
+    client_id = colander.SchemaNode(
+        colander.Integer(),
+        title=Receipt.CLIENT,
+        widget=client_id_widget,
+        validator=client_id_validator,
+        missing_msg=REQUIRED_FIELD,
+        insert_before='number'
+    )
+
+
+class ReceiptEditValidator(ReceiptBaseValidator):
+    client_name = colander.SchemaNode(
+        colander.String(),
+        title=Receipt.CLIENT,
+        widget=TextInputWidget(
+            readonly=True,
+            readonly_template=u'readonly/textinput_readonly'
+        ),
+        missing_msg=REQUIRED_FIELD,
+        insert_before='number'
     )

@@ -8,11 +8,12 @@ from tempfile import NamedTemporaryFile
 from flask import Blueprint, render_template, abort, request, redirect, url_for, flash, send_file, current_app
 from fakturahr.models.database import Session
 from fakturahr.models.models import Receipt, ReceiptItem, Item, User
-from fakturahr.views.receipt.validators import ReceiptNewValidator
+from fakturahr.views.receipt.validators import ReceiptNewValidator, ReceiptEditValidator
 from fakturahr.views.helpers import get_item_list, get_item, get_client_list, get_receipt_list, get_client_items, \
     get_client_list_ordered
 from fakturahr.utility.helper import get_value_or_colander_null, get_form_buttons
 from fakturahr.utility.receipt_export import get_receipt_document
+from fakturahr import string_constants
 
 receipt_view = Blueprint('receipt_view', __name__, url_prefix='/receipt')
 
@@ -31,33 +32,40 @@ def receipt_list():
 
 
 @receipt_view.route('/new/<int:client_id>', methods=['GET', 'POST'])
-def receipt_new(client_id=-1):
+def receipt_new(client_id=0):
     if 'cancel' in request.form:
         return redirect(url_for('.receipt_list'))
 
     client_list = get_client_list_ordered()
+    if not client_list:
+        flash(string_constants.NO_CLIENTS, 'danger')
+        return redirect(url_for('.receipt_list'))
+
     client_id_name_list = [(client.id, client.get_name()) for client in client_list]
     client_id_name_list.insert(0, ('', '-Odaberi klijenta-'))
 
-    if client_id == -1:
+    if client_id == 0:
+        client_id = client_list[0].id
 
-    item_list = get_item_list()
+    client_item_list = get_client_items(client_id)
+    if not client_item_list:
+        flash(string_constants.NO_ITEMS, 'danger')
+        return redirect(url_for('.receipt_list'))
+
     item_data_list = [
         {
-            'id': item.id,
-            'name': item.get_name(),
-            'ean': item.get_ean(),
-            'measurement_unit': item.get_measurement_unit(),
-            'price': item.get_price_float(),
-            'price_formatted': item.get_price_formatted(),
-            'return_amount': item.get_return_amount()
-        } for item in item_list
+            'id': client_item.id,
+            'name': client_item.item.get_name(),
+            'ean': client_item.item.get_ean(),
+            'measurement_unit': client_item.item.get_measurement_unit(),
+            'price': client_item.get_price_float(),
+            'price_formatted': client_item.get_price_formatted(),
+            'return_amount': client_item.item.get_return_amount()
+        } for client_item in client_item_list
     ]
 
-    item_id_name_list = [(item.id, item.name) for item in item_list]
+    item_id_name_list = [(item.id, item.name) for item in client_item_list]
     item_id_name_list.insert(0, ('', '-Odaberi artikl-'))
-
-
 
     payment_types = [(payment_type, payment_name)
                      for payment_type, payment_name in Receipt.get_payment_option_dict().iteritems()]
@@ -145,7 +153,11 @@ def receipt_edit(receipt_id):
         flash(u'Račun nije pronađen', 'danger')
         return redirect(url_for('.receipt_list'))
 
-    item_list = get_item_list()
+    client_item_list = get_client_items(receipt.client_id)
+    if not client_item_list:
+        flash(string_constants.NO_ITEMS, 'danger')
+        return redirect(url_for('.receipt_list'))
+
     item_data_list = [
         {
             'id': item.id,
@@ -155,7 +167,7 @@ def receipt_edit(receipt_id):
             'price': item.get_price_float(),
             'price_formatted': item.get_price_formatted(),
             'return_amount': item.get_return_amount()
-        } for item in item_list
+        } for item in client_item_list
     ]
 
     item_id_name_list = [(item.id, item.name) for item in item_list]
