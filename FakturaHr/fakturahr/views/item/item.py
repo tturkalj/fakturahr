@@ -4,25 +4,15 @@ from flask import Blueprint, render_template, abort, request, redirect, url_for,
 from deform import Form, ValidationFailure
 
 from fakturahr.models.database import Session
-from fakturahr.models.models import Item
+from fakturahr.models.models import Item, Client, ClientItem
 from fakturahr.views.item.validators import ItemNewSchema
 from fakturahr.utility.helper import get_form_buttons
+from fakturahr.views.helpers import get_client_list, get_item_list, get_item
 
 item_view = Blueprint('item_view', __name__, url_prefix='/item')
 
 ITEM_NEW_TEMPLATE = 'item/item_new.jinja2'
 ITEM_LIST_TEMPLATE = 'item/item_list.jinja2'
-
-
-def get_item_list():
-    items = Session.query(Item).filter(Item.deleted == False).all()
-    return items
-
-
-def get_item(item_id):
-    item_object = Session.query(Item).filter(Item.id == item_id,
-                                             Item.deleted == False).first()
-    return item_object
 
 
 @item_view.route('/list', methods=['GET'])
@@ -66,6 +56,20 @@ def item_new():
         Session.add(new_item)
         Session.flush()
 
+        clients = get_client_list()
+        client_items_to_add = []
+        for client in clients:
+            client_item = Session.query(ClientItem)\
+                .filter(ClientItem.client_id == client.id,
+                        ClientItem.item_id == new_item.id,
+                        ClientItem.deleted == False).first()
+            if not client_item:
+                client_item = ClientItem(client.id, new_item.id, new_item.price)
+                client_items_to_add.append(client_item)
+        if client_items_to_add:
+            Session.add_all(client_items_to_add)
+            Session.flush()
+
         flash(u'Uspješno ste dodali novi artikl', 'success')
         return redirect(url_for('.item_list'))
 
@@ -81,7 +85,7 @@ def item_edit(item_id):
     if 'cancel' in request.form:
         return redirect(url_for('.item_list'))
 
-    item = Session.query(Item).filter(Item.id == item_id, Item.deleted == False).first()
+    item = get_item(item_id)
     if not item:
         current_app.logger.warning(u'Item with id {0} not found'.format(item_id))
         flash(u'Artikl nije pronađen', 'danger')
@@ -129,13 +133,17 @@ def item_edit(item_id):
 
 @item_view.route('/delete/<int:item_id>', methods=['GET', 'POST'])
 def item_delete(item_id):
-    item = Session.query(Item).filter(Item.id == item_id, Item.deleted == False).first()
+    item = get_item(item_id)
     if not item:
         current_app.logger.warning(u'Item with id {0} not found'.format(item_id))
         flash(u'Artikl nije pronađen', 'danger')
         return redirect(url_for('.item_list'))
 
     item.deleted = True
+
+    for client_item in item.get_client_items():
+        client_item.deleted = True
+
     Session.flush()
 
     flash(u'Uspješno ste obrisali artikl', 'success')

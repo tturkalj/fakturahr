@@ -4,9 +4,10 @@ from flask import Blueprint, render_template, abort, request, redirect, url_for,
 from deform import Form, ValidationFailure, Button
 
 from fakturahr.models.database import Session
-from fakturahr.models.models import Client
+from fakturahr.models.models import Client, Item, ClientItem
 from fakturahr.views.client.validators import ClientNewValidator
 from fakturahr.utility.helper import get_form_buttons
+from fakturahr.views.helpers import get_client_list, get_item_list
 
 client_view = Blueprint('client_view', __name__, url_prefix='/client')
 
@@ -15,11 +16,6 @@ CLIENT_LIST_ROUTE = '/list'
 
 CLIENT_NEW_TEMPLATE = 'client/client_new.jinja2'
 CLIENT_LIST_TEMPLATE = 'client/client_list.jinja2'
-
-
-def get_client_list():
-    client_list = Session.query(Client).filter(Client.deleted == False).all()
-    return client_list
 
 
 @client_view.route(CLIENT_LIST_ROUTE)
@@ -53,6 +49,14 @@ def client_new():
 
         new_client = Client(appstruct)
         Session.add(new_client)
+        Session.flush()
+
+        items = get_item_list()
+        client_items_to_add = []
+        for item in items:
+            client_item = ClientItem(new_client.id, item.id, item.price)
+            client_items_to_add.append(client_item)
+        Session.add_all(client_items_to_add)
         Session.flush()
 
         flash(u'Uspješno ste dodali novog klijenta', 'success')
@@ -126,6 +130,9 @@ def client_delete(client_id):
         return redirect(url_for('.client_list'))
 
     client.deleted = True
+    for client_item in client.get_client_items():
+        client_item.deleted = True
+
     Session.flush()
 
     flash(u'Uspješno ste obrisali klijenta', 'success')

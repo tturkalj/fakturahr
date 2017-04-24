@@ -81,6 +81,10 @@ class Client(Base):
                         edited = True
         return edited
 
+    def get_client_items(self):
+        client_items = self.client_items.filter(ClientItem.deleted == False).all()
+        return client_items
+
 
 class User(Base):
     firstname = Column(Unicode(1024), nullable=False)
@@ -195,6 +199,24 @@ class Item(Base):
             'return_amount': self.get_value_or_null(self.return_amount),
             'stock_quantity': self.get_value_or_null(self.stock_quantity)
         }
+
+    def get_client_items(self):
+        client_items = self.client_items.filter(ClientItem.deleted == False).all()
+        return client_items
+
+
+class ClientItem(Base):
+    price = Column(Numeric(8, 2), nullable=True)
+    client_id = Column(ForeignKey('client.id'), index=True)
+    item_id = Column(ForeignKey('item.id'), index=True)
+
+    item = relationship('Item', backref=backref('client_items', lazy='dynamic'))
+    client = relationship('Client', backref=backref('client_items', lazy='dynamic'))
+
+    def __init__(self, client_id, item_id, price):
+        self.client_id = client_id
+        self.item_id = item_id
+        self.price = price
 
 
 class Receipt(Base):
@@ -365,10 +387,10 @@ class ReceiptItem(Base):
     item_price_sum = Column(Numeric(8, 2), nullable=False)
 
     receipt_id = Column(ForeignKey('receipt.id'), index=True)
-    item_id = Column(ForeignKey('item.id'), index=True)
+    client_item_id = Column(ForeignKey('clientitem.id'), index=True)
 
     receipt = relationship('Receipt', backref=backref('items', lazy='dynamic'))
-    item = relationship('Item')
+    client_item = relationship('ClientItem')
 
     QUANTITY = u'Količina'
     REBATE_PERCENT = u'Rabat'

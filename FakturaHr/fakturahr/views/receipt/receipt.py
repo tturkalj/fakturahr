@@ -9,8 +9,8 @@ from flask import Blueprint, render_template, abort, request, redirect, url_for,
 from fakturahr.models.database import Session
 from fakturahr.models.models import Receipt, ReceiptItem, Item, User
 from fakturahr.views.receipt.validators import ReceiptNewValidator
-from fakturahr.views.item.item import get_item_list, get_item
-from fakturahr.views.client.client import get_client_list
+from fakturahr.views.helpers import get_item_list, get_item, get_client_list, get_receipt_list, get_client_items, \
+    get_client_list_ordered
 from fakturahr.utility.helper import get_value_or_colander_null, get_form_buttons
 from fakturahr.utility.receipt_export import get_receipt_document
 
@@ -18,11 +18,6 @@ receipt_view = Blueprint('receipt_view', __name__, url_prefix='/receipt')
 
 RECEIPT_NEW_TEMPLATE = 'receipt/receipt_new.jinja2'
 RECEIPT_LIST_TEMPLATE = 'receipt/receipt_list.jinja2'
-
-
-def get_receipt_list():
-    receipts = Session.query(Receipt).filter(Receipt.deleted == False).all()
-    return receipts
 
 
 @receipt_view.route('/list',  methods=['GET'])
@@ -35,10 +30,16 @@ def receipt_list():
     return render_template(RECEIPT_LIST_TEMPLATE, **context)
 
 
-@receipt_view.route('/new', methods=['GET', 'POST'])
-def receipt_new():
+@receipt_view.route('/new/<int:client_id>', methods=['GET', 'POST'])
+def receipt_new(client_id=-1):
     if 'cancel' in request.form:
         return redirect(url_for('.receipt_list'))
+
+    client_list = get_client_list_ordered()
+    client_id_name_list = [(client.id, client.get_name()) for client in client_list]
+    client_id_name_list.insert(0, ('', '-Odaberi klijenta-'))
+
+    if client_id == -1:
 
     item_list = get_item_list()
     item_data_list = [
@@ -56,9 +57,7 @@ def receipt_new():
     item_id_name_list = [(item.id, item.name) for item in item_list]
     item_id_name_list.insert(0, ('', '-Odaberi artikl-'))
 
-    client_list = get_client_list()
-    client_id_name_list = [(client.id, client.get_name()) for client in client_list]
-    client_id_name_list.insert(0, ('', '-Odaberi klijenta-'))
+
 
     payment_types = [(payment_type, payment_name)
                      for payment_type, payment_name in Receipt.get_payment_option_dict().iteritems()]
