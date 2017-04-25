@@ -66,7 +66,3 @@ if __name__ == '__main__':
         app.logger.debug(u'Route {0}; Request params: {1}'.format(request.path, request.values))
 
     app.run(host='localhost', debug=False)
-
-
-
-

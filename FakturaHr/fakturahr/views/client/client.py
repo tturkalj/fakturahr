@@ -38,8 +38,7 @@ def client_new():
         buttons=get_form_buttons()
     )
 
-    if 'submit' in request.form:
-        print request.form
+    if request.method == 'POST':
         try:
             appstruct = client_new_form.validate(request.form.items())
         except ValidationFailure as e:

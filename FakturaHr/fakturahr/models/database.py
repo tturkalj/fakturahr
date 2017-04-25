@@ -22,7 +22,7 @@ naming_convention = {
     "pk": "pk_%(table_name)s"
 }
 engine = create_engine('sqlite+pysqlite:///{0}'.format(DB_NAME), convert_unicode=True)
-Session = scoped_session(sessionmaker(autocommit=True, autoflush=False, bind=engine))
+Session = scoped_session(sessionmaker(bind=engine))
 Base = declarative_base(cls=BaseModel)
 Base.metadata = MetaData(naming_convention=naming_convention)
 Base.query = Session.query_property()
