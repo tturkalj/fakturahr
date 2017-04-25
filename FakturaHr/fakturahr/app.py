@@ -15,6 +15,7 @@ from fakturahr.models.database import init_models, Session
 from fakturahr.utility.init_db import init_db
 from fakturahr import get_root_path
 
+
 class AppRequest(Request):
     parameter_storage_class = OrderedMultiDict
 
@@ -22,6 +23,11 @@ class AppRequest(Request):
 def create_app(config=None):
     flask_app = Flask(__name__, template_folder='templates', static_url_path='/static')
     flask_app.request_class = AppRequest
+    flask_app.secret_key = 'some_secret'
+    flask_app.register_blueprint(index_view)
+    flask_app.register_blueprint(client_view)
+    flask_app.register_blueprint(item_view)
+    flask_app.register_blueprint(receipt_view)
     return flask_app
 
 
@@ -41,12 +47,6 @@ if __name__ == '__main__':
 
     app = create_app()
 
-    app.secret_key = 'some_secret'
-    app.register_blueprint(index_view)
-    app.register_blueprint(client_view)
-    app.register_blueprint(item_view)
-    app.register_blueprint(receipt_view)
-
     log_handler = TimedRotatingFileHandler(
         filename=os.path.join(get_root_path(), config.LOG_FILE_PATH),
         when='midnight',
@@ -57,7 +57,6 @@ if __name__ == '__main__':
     app.logger.addHandler(log_handler)
 
     app.logger.setLevel(logging.DEBUG)
-
 
     werkzeug_logger = logging.getLogger('werkzeug')
     werkzeug_logger.setLevel(logging.ERROR)

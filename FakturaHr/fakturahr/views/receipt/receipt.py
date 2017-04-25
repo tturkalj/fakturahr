@@ -10,7 +10,7 @@ from fakturahr.models.database import Session
 from fakturahr.models.models import Receipt, ReceiptItem, Item, User
 from fakturahr.views.receipt.validators import ReceiptNewValidator, ReceiptEditValidator
 from fakturahr.views.helpers import get_item_list, get_item, get_client_list, get_receipt_list, get_client_items, \
-    get_client_list_ordered
+    get_client_list_ordered, get_client_item
 from fakturahr.utility.helper import get_value_or_colander_null, get_form_buttons
 from fakturahr.utility.receipt_export import get_receipt_document
 from fakturahr import string_constants
@@ -64,7 +64,7 @@ def receipt_new(client_id=0):
         } for client_item in client_item_list
     ]
 
-    item_id_name_list = [(item.id, item.name) for item in client_item_list]
+    item_id_name_list = [(client_item.id, client_item.item.name) for client_item in client_item_list]
     item_id_name_list.insert(0, ('', '-Odaberi artikl-'))
 
     payment_types = [(payment_type, payment_name)
@@ -122,12 +122,12 @@ def receipt_new(client_id=0):
 
         added_receipt_items_list = []
         for item in appstruct['receipt_items']:
-            item_object = get_item(item['item_id'])
-            item_object.stock_quantity -= item['quantity']
+            client_item = get_client_item(item['item_id'])
+            client_item.item.stock_quantity -= item['quantity']
 
             new_receipt_item = ReceiptItem()
             new_receipt_item.receipt_id = new_receipt.id
-            new_receipt_item.name = item_object.name
+            new_receipt_item.name = client_item.item.name
             for key in item:
                 if hasattr(new_receipt_item, key):
                     setattr(new_receipt_item, key, item[key])
@@ -160,17 +160,17 @@ def receipt_edit(receipt_id):
 
     item_data_list = [
         {
-            'id': item.id,
-            'name': item.get_name(),
-            'ean': item.get_ean(),
-            'measurement_unit': item.get_measurement_unit(),
-            'price': item.get_price_float(),
-            'price_formatted': item.get_price_formatted(),
-            'return_amount': item.get_return_amount()
-        } for item in client_item_list
+            'id': client_item.id,
+            'name': client_item.item.get_name(),
+            'ean': client_item.item.get_ean(),
+            'measurement_unit': client_item.item.get_measurement_unit(),
+            'price': client_item.get_price_float(),
+            'price_formatted': client_item.item.get_price_formatted(),
+            'return_amount': client_item.item.get_return_amount()
+        } for client_item in client_item_list
     ]
 
-    item_id_name_list = [(item.id, item.name) for item in item_list]
+    item_id_name_list = [(client_item.id, client_item.item.name) for client_item in client_item_list]
     item_id_name_list.insert(0, ('', '-Odaberi artikl-'))
 
     client_list = get_client_list()
@@ -180,7 +180,7 @@ def receipt_edit(receipt_id):
     payment_types = [(payment_type, payment_name)
                      for payment_type, payment_name in Receipt.get_payment_option_dict().iteritems()]
 
-    receipt_new_schema = ReceiptNewValidator().bind(
+    receipt_new_schema = ReceiptEditValidator().bind(
         items=item_id_name_list,
         item_data_list=json.dumps(item_data_list),
         clients=client_id_name_list,
@@ -204,7 +204,7 @@ def receipt_edit(receipt_id):
         'operator': u'{0} {1}'.format(default_user.firstname, default_user.lastname),
         'payment_type': get_value_or_colander_null(receipt.payment_type),
         'receipt_items': [{
-            'item_id': receipt_item.item_id,
+            'client_item_id': receipt_item.client_item_id,
             'ean': get_value_or_colander_null(receipt_item.ean),
             'measurement_unit': get_value_or_colander_null(receipt_item.measurement_unit),
             'quantity': get_value_or_colander_null(receipt_item.quantity),
@@ -268,12 +268,12 @@ def receipt_edit(receipt_id):
                     if hasattr(receipt_item, key):
                         if appstruct_receipt_item[key] != colander.null:
                             if appstruct_receipt_item[key] != getattr(receipt_item, key):
-                                item_object = get_item(appstruct_receipt_item['item_id'])
-                                if key == 'item_id':
-                                    receipt_item.name = item_object.name
+                                client_item = get_client_item(appstruct_receipt_item['client_item_id'])
+                                if key == 'client_item_id':
+                                    receipt_item.name = client_item.item.name
                                 elif key == 'quantity':
                                     quantity_delta = receipt_item.quantity - appstruct_receipt_item['quantity']
-                                    item_object.stock_quantity += quantity_delta
+                                    client_item.item.stock_quantity += quantity_delta
                                 setattr(receipt_item, key, appstruct_receipt_item[key])
                                 edited = True
                         else:
@@ -283,14 +283,13 @@ def receipt_edit(receipt_id):
 
         for index, appstruct_receipt_item in appstruct_receipt_items_indexed.iteritems():
             if index not in receipt_items_indexed:
-                item_object = Session.query(Item).filter(Item.id == appstruct_receipt_item['item_id'],
-                                                         Item.deleted == False).first()
+                client_item = get_client_item(appstruct_receipt_item['client_item_id'])
 
-                item_object.stock_quantity -= appstruct_receipt_item['quantity']
+                client_item.item.stock_quantity -= appstruct_receipt_item['quantity']
 
                 new_receipt_item = ReceiptItem()
                 new_receipt_item.receipt_id = receipt.id
-                new_receipt_item.name = item_object.name
+                new_receipt_item.name = client_item.item.name
                 for key in appstruct_receipt_item:
                     if hasattr(new_receipt_item, key):
                         setattr(new_receipt_item, key, appstruct_receipt_item[key])

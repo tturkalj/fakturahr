@@ -2,6 +2,7 @@ from sqlalchemy import create_engine, MetaData, Column, Integer, DateTime, Boole
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from fakturahr.utility.helper import now
+from fakturahr.config import DB_NAME
 
 
 class BaseModel(object):
@@ -20,7 +21,7 @@ naming_convention = {
     "fk": "fk_%(table_name)s_%(column_0_name)s",
     "pk": "pk_%(table_name)s"
 }
-engine = create_engine('sqlite+pysqlite:///fakturahr.db', convert_unicode=True)
+engine = create_engine('sqlite+pysqlite:///{0}'.format(DB_NAME), convert_unicode=True)
 Session = scoped_session(sessionmaker(autocommit=True, autoflush=False, bind=engine))
 Base = declarative_base(cls=BaseModel)
 Base.metadata = MetaData(naming_convention=naming_convention)

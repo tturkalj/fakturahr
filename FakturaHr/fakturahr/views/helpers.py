@@ -34,3 +34,10 @@ def get_client_items(client_id):
         .filter(ClientItem.client_id == client_id,
                 ClientItem.deleted == False).all()
     return client_items
+
+
+def get_client_item(client_item_id):
+    client_items = Session.query(ClientItem)\
+        .filter(ClientItem.id == client_item_id,
+                ClientItem.deleted == False).all()
+    return client_items

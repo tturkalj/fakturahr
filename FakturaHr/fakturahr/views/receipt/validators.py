@@ -46,7 +46,7 @@ def validate_date(node, value):
 
 
 class ReceiptItemSchema(colander.Schema):
-    item_id = colander.SchemaNode(
+    client_item_id = colander.SchemaNode(
         colander.Integer(),
         title=Item.NAME,
         widget=item_id_widget,
