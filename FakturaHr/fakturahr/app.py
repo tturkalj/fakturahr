@@ -28,6 +28,13 @@ def create_app(config=None):
     flask_app.register_blueprint(client_view)
     flask_app.register_blueprint(item_view)
     flask_app.register_blueprint(receipt_view)
+
+    @flask_app.teardown_appcontext
+    def shutdown_session(exception=None):
+        if exception is None:
+            Session.commit()
+        Session.remove()
+
     return flask_app
 
 

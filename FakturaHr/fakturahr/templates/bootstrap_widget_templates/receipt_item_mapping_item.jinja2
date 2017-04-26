@@ -7,7 +7,7 @@
 {% endif %}
 <!-- mapping_item -->
 
-<div class="col-md-{% if field.name == 'item_id' or field.name == 'ean' or field.name == 'item_price_sum'%}2{% else %}1{% endif %}">
+<div class="col-md-{% if field.name == 'client_item_id' or field.name == 'ean' or field.name == 'item_price_sum'%}2{% else %}1{% endif %}">
   {{field.serialize(cstruct)}}
     {% if field.error and not field.widget.hidden %}
     {% for msg in field.error.messages() %}

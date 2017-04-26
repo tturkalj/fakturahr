@@ -30,9 +30,9 @@ def receipt_list():
     }
     return render_template(RECEIPT_LIST_TEMPLATE, **context)
 
-
-@receipt_view.route('/new/<int:client_id>', methods=['GET', 'POST'])
-def receipt_new(client_id=0):
+@receipt_view.route('/new', methods=['GET', 'POST'])
+@receipt_view.route('/new/<int:selected_client_id>', methods=['GET', 'POST'])
+def receipt_new(selected_client_id=0):
     if 'cancel' in request.form:
         return redirect(url_for('.receipt_list'))
 
@@ -44,8 +44,10 @@ def receipt_new(client_id=0):
     client_id_name_list = [(client.id, client.get_name()) for client in client_list]
     client_id_name_list.insert(0, ('', '-Odaberi klijenta-'))
 
-    if client_id == 0:
+    if selected_client_id == 0:
         client_id = client_list[0].id
+    else:
+        client_id = selected_client_id
 
     client_item_list = get_client_items(client_id)
     if not client_item_list:
@@ -81,10 +83,12 @@ def receipt_new(client_id=0):
     appstruct = {
         'operator': u'{0} {1}'.format(default_user.firstname, default_user.lastname),
     }
+    if selected_client_id != 0:
+        appstruct['client_id'] = selected_client_id
 
     receipt_new_form = Form(
         receipt_new_schema,
-        action=url_for('.receipt_new'),
+        action=url_for('.receipt_new', client_id=client_id),
         buttons=get_form_buttons(),
         formid='receipt-new-form',
         appstruct=appstruct
@@ -122,7 +126,7 @@ def receipt_new(client_id=0):
 
         added_receipt_items_list = []
         for item in appstruct['receipt_items']:
-            client_item = get_client_item(item['item_id'])
+            client_item = get_client_item(item['client_item_id'])
             client_item.item.stock_quantity -= item['quantity']
 
             new_receipt_item = ReceiptItem()
@@ -190,7 +194,7 @@ def receipt_edit(receipt_id):
     default_user = Session.query(User).filter(User.firstname == u'Miroslav').first()
 
     appstruct = {
-        'client_id': receipt.client_id,
+        'client_name': receipt.client.name,
         'number': receipt.number,
         'issued_date': receipt.issued_date.strftime(receipt.date_format),
         'currency_date': receipt.currency_date.strftime(receipt.date_format),

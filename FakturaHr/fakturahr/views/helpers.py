@@ -37,7 +37,7 @@ def get_client_items(client_id):
 
 
 def get_client_item(client_item_id):
-    client_items = Session.query(ClientItem)\
+    client_item = Session.query(ClientItem)\
         .filter(ClientItem.id == client_item_id,
-                ClientItem.deleted == False).all()
-    return client_items
+                ClientItem.deleted == False).first()
+    return client_item

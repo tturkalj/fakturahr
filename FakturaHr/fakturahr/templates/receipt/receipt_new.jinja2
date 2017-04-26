@@ -51,7 +51,11 @@
         accept-charset="utf-8"
         >
             <div class="row .mb-1">
+                {% if 'client_id' in receipt_new_form %}
                 {{ form_field(receipt_new_form['client_id'], 2) }}
+                {% else %}
+                {{ form_field(receipt_new_form['client_name'], 2) }}
+                {% endif %}
 
                 {{ form_field(receipt_new_form['base_amount'], 1, 1) }}
             </div>
@@ -147,7 +151,7 @@ $(document).ready(function(){
             if($.isNumeric(itemPriceSum)){
                 baseAmount = baseAmount.add(itemPriceSum);
                 var quantity = $(sequenceItem[i]).find('input[name="quantity"]').val();
-                var selectedValue = $(sequenceItem[i]).find('select[name="item_id"]').val();
+                var selectedValue = $(sequenceItem[i]).find('select[name="client_item_id"]').val();
                 var selectedItemData = getSelectedItemData(selectedValue);
                 returnAmountTotal = returnAmountTotal + (quantity * selectedItemData['return_amount']);
             }
@@ -172,7 +176,7 @@ $(document).ready(function(){
             return false
         }
 
-        var selectedValue = $(itemRow).find('select[name="item_id"]').val();
+        var selectedValue = $(itemRow).find('select[name="client_item_id"]').val();
         var itemData = getSelectedItemData(selectedValue);
         if (itemData) {
             var selectedItemPrice = new Decimal(itemData['price']);
@@ -195,7 +199,7 @@ $(document).ready(function(){
 
     function initReceiptItemsSelect(){
         var receiptNewForm = $('#receipt-new-form');
-        $(receiptNewForm).find('select[name="item_id"]').on('change', function (e) {
+        $(receiptNewForm).find('select[name="client_item_id"]').on('change', function (e) {
             var parentRow = $(this).closest('.deform-seq-item');
             var selectedValue = $(this).val();
             var itemData = getSelectedItemData(selectedValue);
@@ -234,8 +238,20 @@ $(document).ready(function(){
 
     initReceiptCalculator();
 
+    var receiptNewForm = $('#receipt-new-form');
     initDatepicker($(receiptNewForm).find('input[name="issued_date"]'));
     initDatepicker($(receiptNewForm).find('input[name="currency_date"]'));
+
+    $(receiptNewForm).find('select[name="client_id"]').off('change').on('change', function (e) {
+        var selectedValue = $(this).val();
+        var newReceiptUrl = '{{ url_for('.receipt_new') }}';
+        if(selectedValue == ''){
+            window.location = newReceiptUrl;
+        }else{
+            window.location = newReceiptUrl + '/' + selectedValue;
+        }
+
+    })
 
 });
 
