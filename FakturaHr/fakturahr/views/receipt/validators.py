@@ -38,6 +38,7 @@ def payment_type_validator(node, kw):
     payment_types = kw.get('payment_types')
     return colander.OneOf([payment_type[0] for payment_type in payment_types])
 
+
 def validate_date(node, value):
     try:
         parsed_date = datetime.strptime(value, Receipt.date_format)

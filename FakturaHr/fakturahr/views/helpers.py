@@ -19,6 +19,12 @@ def get_client_list():
     return client_list
 
 
+def get_client(client_id):
+    client = Session.query(Client).filter(Client.id == client_id,
+                                          Client.deleted == False).first()
+    return client
+
+
 def get_client_list_ordered():
     client_list = Session.query(Client).filter(Client.deleted == False).order_by(Client.name.asc()).all()
     return client_list

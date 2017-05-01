@@ -1,0 +1,10 @@
+{% set rndr = field.renderer %}
+{% set tmpl = field.widget.item_template %}
+
+  <!-- mapping -->
+    <input type="hidden" name="__start__" value="{{field.name}}:mapping"/>
+    {% for f in field.children %}
+        {{rndr(tmpl, field=f, cstruct=cstruct.get(f.name, null))}}
+    {% endfor %}
+    <input type="hidden" name="__end__" value="{{field.name}}:mapping"/>
+  <!-- /mapping -->

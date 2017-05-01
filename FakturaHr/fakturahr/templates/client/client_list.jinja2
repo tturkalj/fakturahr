@@ -50,6 +50,9 @@
                             <a href="{{ url_for('.client_edit', client_id=client.id) }}" class="btn btn-default" data-toggle="tooltip" title="{{ 'Uredi' }}">
                                 <span class="glyphicon glyphicon-edit"></span>
                             </a>
+                            <a href="{{ url_for('.client_items', client_id=client.id) }}" class="btn btn-default" data-toggle="tooltip" title="{{ 'Artikli' }}">
+                                <span class="glyphicon glyphicon-list"></span>
+                            </a>
                             <button class="btn btn-default"
                                     data-toggle="tooltip"
                                     title="{{ 'Obriši' }}"

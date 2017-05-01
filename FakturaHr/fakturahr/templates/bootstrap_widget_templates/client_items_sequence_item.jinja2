@@ -1,0 +1,11 @@
+{% if not field.widget.hidden %}
+<div class="row deform-seq-item .mb-1">
+{% endif %}
+<!-- sequence_item -->
+
+  {{ field.serialize(cstruct) }}
+
+  <!-- /sequence_item -->
+{% if not field.widget.hidden %}
+</div>
+{% endif %}
