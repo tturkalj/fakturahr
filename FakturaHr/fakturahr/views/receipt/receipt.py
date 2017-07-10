@@ -79,7 +79,7 @@ def receipt_new(selected_client_id=0):
         payment_types=payment_types
     )
 
-    default_user = Session.query(User).filter(User.firstname == u'Miroslav').first()
+    default_user = Session.query(User).filter(User.firstname == u'Tomi').first()
     appstruct = {
         'operator': u'{0} {1}'.format(default_user.firstname, default_user.lastname),
     }
@@ -191,7 +191,7 @@ def receipt_edit(receipt_id):
         payment_types=payment_types
     )
 
-    default_user = Session.query(User).filter(User.firstname == u'Miroslav').first()
+    default_user = Session.query(User).filter(User.firstname == u'Tomi').first()
 
     appstruct = {
         'client_name': receipt.client.name,
