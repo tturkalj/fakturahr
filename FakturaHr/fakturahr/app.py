@@ -65,8 +65,8 @@ if __name__ == '__main__':
 
     app.logger.setLevel(logging.DEBUG)
 
-    werkzeug_logger = logging.getLogger('werkzeug')
-    werkzeug_logger.setLevel(logging.ERROR)
+    # werkzeug_logger = logging.getLogger('werkzeug')
+    # werkzeug_logger.setLevel(logging.ERROR)
 
     @app.before_request
     def log_request_info():
